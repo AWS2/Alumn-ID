@@ -1,0 +1,58 @@
+attributetype ( 1.2.3.4.7777.2017.1 NAME 'DNI'
+	DESC 'DNI de una persona.'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{9}
+	SINGLE-VALUE
+	USAGE userApplications )
+attributetype ( 1.2.3.4.7777.2017.2 NAME ( 'birthDate' 'birthday' )
+	DESC 'Fecha de nacimiento de una persona.'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{10}
+	SINGLE-VALUE
+	USAGE userApplications )
+attributetype ( 1.2.3.4.7777.2017.3 NAME 'gender'
+	DESC 'Genero de la persona.'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{1}
+	SINGLE-VALUE
+	USAGE userApplications )
+attributetype ( 1.2.3.4.7777.2017.4 NAME 'countryOrigin'
+	DESC 'País de origen.'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.11{2}
+	SINGLE-VALUE
+	USAGE userApplications )
+attributetype ( 1.2.3.4.8888.2017.1 NAME ( 'MACWifi' 'Wifi' )
+	DESC 'Dispositivos Wifi propiedad del usuario'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{12}
+	COLLECTIVE
+	USAGE userApplications )
+attributetype ( 1.2.3.4.8888.2017.2 NAME ( 'MACBluetooth' 'Bluetooth' )
+	DESC 'Dispositivos Bluetooth asociados al usuario.'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{12}
+	COLLECTIVE
+	USAGE userApplications )
+attributetype ( 1.2.3.4.8888.2017.3 NAME 'key'
+	DESC 'Clave asociada a un usuario.'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseExactMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{40}
+	COLLECTIVE
+	USAGE userApplications )
+objectclass ( 1.2.3.4.7777.2017 NAME 'persona'
+	DESC 'Persona'
+	STRUCTURAL
+	MUST DNI
+	MAY ( birthDay $ gender $ countryOrigin ) )
+objectclass ( 1.2.3.4.8.8888.2017 NAME 'identificables'
+	DESC 'Dispositivos o elementos que pueden identificar a la persona.'
+	STRUCTURAL
+	MAY ( MACWifi $ MACBluetooth $ key ) )
