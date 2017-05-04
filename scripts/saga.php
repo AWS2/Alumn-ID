@@ -21,6 +21,19 @@ $assocs = [
 	// userClass = student, parent,
 ];
 
+$ldap = new LdapUtils("ester.cat");
+
+$alumnes	= $ldap->XMLParser($xml->alumnes->alumne, $assocs);
+$pares		= $ldap->XMLParser($xml->{"tutors-legals"}->{"tutor-legal"}, $assocs);
+$profes		= $ldap->XMLParser($xml->personal->personal, $assocs);
+
+echo $ldap->createOU("Groups", FALSE);
+echo $ldap->createOU("Users", TRUE);
+	echo $ldap->createOU("Alumnes", FALSE);
+	echo $ldap->createOU("Professors", FALSE);
+	echo $ldap->createOU("Pares", FALSE);
+$ldap->resetPath();
+
 function displayldif($array, $ou = "users", $dom = "ester.cat"){
 	$uid = "alguno";
 	if(isset($array["uid"])){ $uid = $array["uid"]; }
@@ -91,20 +104,5 @@ function fixvals(&$data){
 	$data["cn"][] = $data["givenName"] ." " .$data["sn"];
 	$data["cn"][] = $user;
 }
-
-function domain2dc($dom){
-	if(is_string($dom)){ $dom = explode(".", $dom); }
-	foreach($dom as $i => $d){ $dom[$i] = "dc=$d"; }
-	return implode(",", $dom);
-}
-
-function createou($ou){
-	// TODO
-}
-
-
-// dataparser($xml->personal[0]);
-$alumnes = dataparser($xml->alumnes->alumne);
-dataparser($xml->{"tutors-legals"}->{"tutor-legal"});
 
 ?>

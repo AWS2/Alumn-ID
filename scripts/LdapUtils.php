@@ -7,7 +7,7 @@ class LdapUtils {
 	private $path;
 
 	public function __construct($domain = NULL){
-		if(!empty($domain)){ self::domain($domain); }
+		if(!empty($domain)){ $this->domain($domain); }
 	}
 
 	/**
@@ -17,10 +17,10 @@ class LdapUtils {
 	 */
     public function domain($set = NULL){
         if(!empty($set)){
-            self::$domain = $set;
-            self::$dc = self::domain2DC($set);
+            $this->domain = $set;
+            $this->dc = $this->domain2DC($set);
         }
-        return self::$domain;
+        return $this->domain;
     }
 
 	/**
@@ -41,24 +41,24 @@ class LdapUtils {
 	 * @return string
 	 */
     public function pwd(){
-		$path = self::$path;
+		$path = $this->path;
 		if(!empty($path)){ $path .= ","; }
-		return $path .self::$;
+		return $path .$this->path;
     }
 
     public function cd($path, $absolute = FALSE){
-		if($absolute){ self::resetPath(); }
-		if(!empty(self::$path)){
-			self::$path = "," .self::$path;
+		if($absolute){ $this->resetPath(); }
+		if(!empty($this->path)){
+			$this->path = "," .$this->path;
 		}
-		self::$path = $path .self::$path;
+		$this->path = $path .$this->path;
     }
 
 	/**
 	 * Reinicia la ruta a la raiz.
 	 */
     public function resetPath(){
-		self::$path = "";
+		$this->path = "";
     }
 
 	/**
@@ -68,11 +68,11 @@ class LdapUtils {
 	 * @return string         LDIF generdo de la OU.
 	 */
     public function createOU($name, $enter = TRUE){
-		$path = self::$path;
-		if($enter){ self::cd($name); }
-		$rdn = "ou=$name" .self::pwd();
+		$path = $this->path;
+		if($enter){ $this->cd($name); }
+		$rdn = "ou=$name" .$this->pwd();
 		$data = ["ou" => $name];
-		return self::generateLdif($rdn, $data, "top");
+		return $this->generateLdif($rdn, $data, "top");
     }
 
 	/**
