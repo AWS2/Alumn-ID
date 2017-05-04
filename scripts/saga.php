@@ -1,9 +1,11 @@
 <?php
 
+require_once 'LdapUtils.php';
+
 $xml = simplexml_load_file("dades-saga.xml");
 
 $assocs = [
-	"id" => "uid", // uidNumber 
+	"id" => "uid", // uidNumber
 	"nom" => "givenName",
 	"cognom1" => "sn",
 	"cognom2" => "sn",
@@ -19,49 +21,12 @@ $assocs = [
 	// userClass = student, parent,
 ];
 
-function sanstr($text){
-	$text = str_replace(["à", "è", "ò", "ù"], ["a", "e", "o", "u"], $text);
-	$text = str_replace(["À", "È", "Ò", "Ù"], ["A", "E", "O", "U"], $text);
-	$text = str_replace(["á", "é", "í", "ó", "ú"], ["a", "e", "i", "o", "u"], $text);
-	$text = str_replace(["Á", "É", "Í", "Ó", "Ú"], ["A", "E", "I", "O", "U"], $text);
-	return $text;
-}
-
-function dataparser($selector) {
-	global $assocs;
-
-	$ret = array();
-	foreach($selector as $p){
-	        $data = array();
-	        $vals = current($p->attributes());
-
-		foreach($vals as $k => $v){
-			if(in_array($k, array_keys($assocs))){
-				$v = trim($v); // HACK
-
-				if(isset($data[$assocs[$k]])){
-					if(!is_array($data[$assocs[$k]])){
-						$data[$assocs[$k]] = [ $data[$assocs[$k]] ];
-					}
-					$data[$assocs[$k]][] = $v;
-				}else{
-					$data[$assocs[$k]] = $v;
-				}
-			}
-		}
-		fixvals($data);
-		echo displayldif($data) ."\n\n\n";
-		$ret[] = $data;
-	}
-	return $ret;
-}
-
 function displayldif($array, $ou = "users", $dom = "ester.cat"){
 	$uid = "alguno";
 	if(isset($array["uid"])){ $uid = $array["uid"]; }
 	$dn = "uid=$uid,ou=$ou," .domain2dc($dom);
 
-	// posixAccount inetOrgPerson organizationalPerson top 
+	// posixAccount inetOrgPerson organizationalPerson top
 	$defclass = ["persona"];
 
 	$str = "dn: " .$dn ."\n";
