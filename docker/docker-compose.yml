@@ -1,0 +1,63 @@
+version: "3"
+services:
+    ldap:
+        image: osixia/openldap:1.1.8
+        environment:
+            - "LDAP_ORGANISATION=Ejemplo"
+            - "LDAP_DOMAIN=example.com"
+            - "LDAP_ADMIN_PASSWORD=Passw0rd."
+        ports:
+            - "389:389"
+            - "636:636"
+        deploy:
+            restart_policy:
+                condition: on-failure
+        volumes:
+            - "/data/slapd/database:/var/lib/ldap"
+            - "/data/slapd/config:/etc/ldap/slapd.d"
+
+    ldapmin:
+        image: osixia/phpldapadmin:0.6.12
+        environment:
+            - "PHPLDAPADMIN_LDAP_HOSTS=ldap"
+        expose:
+            - "443"
+        ports:
+            - "443:443"
+        depends_on:
+            - ldap
+
+    mariadb:
+        image: mariadb:5.5.56
+        environment:
+#           - "MYSQL_RANDOM_ROOT_PASSWORD=yes"
+            - "MYSQL_ROOT_PASSWORD=root123"
+            - "ALLOW_EMPTY_PASSWORD=no"
+            - "MYSQL_USER=moodle"
+            - "MYSQL_PASSWORD=moodle"
+            - "MYSQL_DATABASE=moodle"
+        ports:
+            - "3306:3306"
+        deploy:
+            restart_policy:
+                condition: on-failure
+        volumes:
+            - '/data/mariadb:/var/lib/mysql'
+
+    moodle:
+        image: jhardison/moodle:latest # 3.2
+        environment:
+            - "MOODLE_URL=http://example.com"
+            - "DB_ENV_MYSQL_DATABASE=moodle"
+            - "DB_ENV_MYSQL_USER=moodle"
+            - "DB_ENV_MYSQL_PASSWORD=moodle"
+            - "DB_PORT_3306_TCP_PORT=3306"
+            - "DB_PORT_3306_TCP_ADDR=mariadb"
+        ports:
+            - "80:80"
+        links:
+            - mariadb
+        depends_on:
+            - mariadb
+        volumes:
+            - "/data/moodledata:/var/moodledata"
