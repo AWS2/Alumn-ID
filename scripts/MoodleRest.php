@@ -40,7 +40,8 @@ class MoodleRest {
     public function query($type, $data){
         $url = $this->url . "/webservice/" .$this->type ."/server.php?"
         ."wstoken=" .$this->token ."&"
-        ."wsfunction=" .$type;
+        ."wsfunction=" .$type ."&"
+        ."moodlewsrestformat=json";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -55,6 +56,10 @@ class MoodleRest {
         $result = curl_exec($ch);
         curl_close($ch);
 
+        $result = json_decode($result);
+        if(!$result){
+            return (object) ["exception" => TRUE, "message" => "Can't parse JSON."];
+        }
         return $result;
     }
 }

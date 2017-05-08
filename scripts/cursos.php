@@ -9,6 +9,9 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $curs){
     if(!in_array($etapa, ["CFPM", "CFPS"])){ continue; }
 
     $categoria = strval($curs['nom']);
+    $data["name"] = $categoria;
+    $data["id"] = strval($curs['subetapa']);
+
     $moduls = array();
 
     foreach($curs->contingut as $content){
@@ -32,7 +35,10 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $curs){
 
         $moduls[$codicred][$codi] = $nom;
     }
-    $cursos[$categoria] = $moduls;
+
+    $data["courses"] = $moduls;
+
+    $cursos[] = $data;
 }
 
 echo json_encode($cursos);
