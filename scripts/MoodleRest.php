@@ -4,6 +4,7 @@ class MoodleRest {
     public $url = NULL;
     private $token = NULL;
     private $type = "rest";
+    private $debug = FALSE;
 
     public function __construct($url = NULL, $token = NULL){
         if(empty($token) and !empty($url)){
@@ -43,15 +44,21 @@ class MoodleRest {
         ."wsfunction=" .$type ."&"
         ."moodlewsrestformat=json";
 
+        $post = http_build_query($data);
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
         // curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type:  text/xml"));
         curl_setopt($ch, CURLOPT_POST, TRUE);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+
+        if($this->debug){
+            echo "$type - $post\n";
+        }
 
         $result = curl_exec($ch);
         curl_close($ch);
