@@ -124,6 +124,11 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     $alumnes = array();
     foreach($grup->alumnes->alumne as $alumne){ $alumnes[] = strval($alumne["id"]); }
 
+    // Cargar los profes del grupo
+    $profes = array();
+    foreach($grup->continguts->contingut as $contingut){ $profes[] = strval($contingut["professor"]); }
+    $profes = array_unique($profes);
+
     // Cargar UFs que hay en la clase.
     $ufs = array();
     foreach($grup->continguts->contingut as $contingut){
@@ -148,6 +153,24 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
 
     echo "Matriculando " .count($alumnes) ." del grupo " .strval($grup["nom"]) ." en " .count($courses_unique) ." cursos.\n";
     // TODO Asociar via LDAP con el ID respectivo del alumno para poder matricularlo.
+
+    foreach($alumnes as $alumne){
+        foreach($courses_unique as $course){
+            $enrol = [
+                "roleid" => $config["student"],
+                "userid" => $alumne,
+                "courseid" => $course,
+                "timestart" => strtotime($config["from"]),
+                "timeend" => strtotime($config["to"]),
+            ];
+
+            $enrol = ["enrolments" => [0 => $enrol]];
+            $res = $moodle->query("enrol_manual_enrol_users", $data);
+        }
+    }
+
+    echo "Matriculando " .count($profes) ." profes del grupo " .strval($grup["nom"]) .".\n";
+
 }
 
 
