@@ -2,15 +2,14 @@
 
 require 'MoodleRest.php';
 
-$url = "";
-$token = "";
+$config = require 'config.php';
 
-if(empty($url) or empty($token)){
+if(empty($config["url"]) or empty($config["token"])){
     echo "Por favor, configura las settings primero.";
     exit(-1);
 }
 
-$moodle = new MoodleRest($url, $token);
+$moodle = new MoodleRest($config["url"], $config["token"]);
 $moodle->type("rest");
 
 $plantilla = json_decode(file_get_contents("courses.json"), TRUE);

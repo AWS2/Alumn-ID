@@ -53,8 +53,8 @@ class MoodleRest {
         // curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type:  text/xml"));
         curl_setopt($ch, CURLOPT_POST, TRUE);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        // curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        // curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 
         if($this->debug){
             echo "$type - $post\n";
@@ -63,6 +63,7 @@ class MoodleRest {
         $result = curl_exec($ch);
         curl_close($ch);
 
+        if($result === NULL){ return NULL; }
         $result = json_decode($result);
         if(!$result){
             return (object) ["exception" => TRUE, "message" => "Can't parse JSON."];
