@@ -94,8 +94,8 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
             "completionnotify" => 1
         ];
 
-        $course = ["courses" => [0 => $data]];
-        $res = $moodle->query("core_course_create_courses", $course);
+        $data = ["courses" => [0 => $data]];
+        $res = $moodle->query("core_course_create_courses", $data);
 
         if(isset($res->exception)){
             error_log("Error al generar el curso " .$id .": " .$res->message);
