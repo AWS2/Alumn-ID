@@ -61,7 +61,11 @@ foreach($plantilla as $cat){
             "visible" => 1, // TRUE
             "idnumber" => $curid,
             "format" => "topics", // Formato de temas
-            "numsections" => count($sections),
+            "numsections" => max(count($sections), 1),
+            "showgrades" => 1,
+            "showreports" => 1,
+            "groupmode" => 1, // no group, separate, visible
+            "completionnotify" => 1
         ];
 
         $course = ["courses" => [0 => $data]];
