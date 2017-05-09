@@ -45,6 +45,11 @@ foreach($plantilla as $cat){
         // Crear curso
         $curid = $cat["id"] ."-" .$id;
 
+        if(!isset($curso["name"])){
+            error_log("El curso $curid no tiene nombre, omitiendo.");
+            continue;
+        }
+
         $sections = $curso;
         unset($sections["id"]);
         unset($sections["name"]);

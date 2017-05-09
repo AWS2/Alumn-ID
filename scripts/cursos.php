@@ -16,8 +16,11 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $curs){
 
     foreach($curs->contingut as $content){
         if($content['categoria'] != 'Mòdul'){ continue; }
-        $codi = intval($content['codi']);
+        $codi = trim(strval($content['codi']));
+        // if(in_array($codi, ["DUA", "C13"]){ continue; } // "C13" -> Modul Dual
+        $codi = intval($codi);
         $nom = strval($content['nom']);
+        // if(in_array(strtolower($nom), ["modul dual", "mòdul dual"])){ continue; }
         $moduls[$codi] = ["name" => $nom];
     }
 
@@ -25,7 +28,8 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $curs){
         if($content['categoria'] != 'Crèdit' or
             $content['tipus'] != 'Lectiu'){ continue; }
 
-            $codicred = substr($content['codi'], 0, 3);
+        $codicred = substr($content['codi'], 0, 3);
+        if($codicred == "DUA"){ continue; }
         $codicred = intval($codicred);
 
         $codi = substr($content['codi'], -2);

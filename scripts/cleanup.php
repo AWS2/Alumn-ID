@@ -21,7 +21,7 @@ foreach($categories as $cat){
     $data = ["categories" => [0 => ["id" => $cat, "recursive" => 1]]];
     $query = $moodle->query("core_course_delete_categories", $data);
 
-    if($query !== NULL and isset($query->exception)){
+    if($query != NULL and isset($query->exception)){
         echo "Error al borrar $cat: " .$query->errorcode ."\n";
     }else{
         echo "Categoría $cat borrada.\n";
