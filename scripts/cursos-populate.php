@@ -87,11 +87,14 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
             "categoryid" => $catid,
             "visible" => 1, // TRUE
             "format" => "topics", // Formato de temas
-            "numsections" => max(count($ufs), 1),
+            // "numsections" => max(count($ufs), 1), // DEPRECATED
             "showgrades" => 1,
             "showreports" => 1,
             "groupmode" => 1, // no group, separate, visible
-            "completionnotify" => 1
+            "completionnotify" => 1,
+            "courseformatoptions" => [
+                ["name" => "numsections", "value" => max(count($ufs), 1)]
+            ],
         ];
 
         $data = ["courses" => [0 => $data]];
@@ -104,6 +107,33 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
 
         $courseid = $res[0]->id;
         echo "Curso $courseid creado: " .strval($course["nom"]) ."\n";
+
+        // TODO WIP - Not working.
+        // No se generan todos los topics, por lo tanto siempre aparece 1.
+        // Sólo se generan cuando "un usuario mira el curso".
+
+        // Editar los titulos de los Topics y ponerles el título de la UF.
+        $data = ["courseid" => $courseid];
+        $res = $moodle->query("core_course_get_contents", $data);
+        $topics = array();
+
+        foreach($res as $topic){ $topics[] = $topic->id; }
+        array_shift($topics); // Extrae el primer Topic, es GENERAL. No nos sirve.
+        $topics = array_values($topics); // Reiniciar las keys del array.
+
+        if(count($ufs) >= 1){
+            for($i = 0; $i < count($ufs); $i++){
+                if(!isset($topics[$i])){ continue; }
+
+                $data = [
+                    "component" => "format_topics",
+                    "itemtype" => "sectionname",
+                    "itemid" => $topics[$i],
+                    "value" => strval($ufs[$i]["nom"]),
+                ];
+                $res = $moodle->query("core_update_inplace_editable", $data);
+            }
+        }
 
         // IDs de las UFs asociadas a este curso de Moodle.
         $ufids = array();
