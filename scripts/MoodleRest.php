@@ -63,12 +63,7 @@ class MoodleRest {
         $result = curl_exec($ch);
         curl_close($ch);
 
-        if($result === NULL){ return NULL; }
-        $result = json_decode($result);
-        if(!$result){
-            return (object) ["exception" => TRUE, "message" => "Can't parse JSON."];
-        }
-        return $result;
+        return json_decode($result);
     }
 }
 
