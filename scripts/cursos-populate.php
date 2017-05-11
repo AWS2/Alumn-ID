@@ -114,10 +114,7 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
 
         // Editar los titulos de los Topics y ponerles el título de la UF.
         $data = ["courseid" => $courseid];
-        $res = $moodle->query("core_course_get_contents", $data);
-        $topics = array();
-
-        foreach($res as $topic){ $topics[] = $topic->id; }
+        $topics = $moodle->query("core_course_get_contents", $data, "id");
         array_shift($topics); // Extrae el primer Topic, es GENERAL. No nos sirve.
         $topics = array_values($topics); // Reiniciar las keys del array.
 
@@ -198,11 +195,11 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
         ];
     }
 
-    $res = $moodle->query("core_group_create_groups", $groups);
-    $groups = array(); // Reciclar variable
-    foreach($res as $r){ $groups[$r->courseid] = $r->id; } // Rellenar con Curso -> Grupo
+    // Rellenar con Curso -> Grupo
+    $groups = $moodle->query("core_group_create_groups", $groups, "id", "courseid");
 
     $i = 1;
+    // var_dump($groups);
     foreach($alumnes as $alumne){
         echo str_pad($i, 4, " ", STR_PAD_LEFT);
         foreach($courses_unique as $course){
@@ -220,17 +217,24 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
 
             // ------------------
             // Agregar usuario al grupo.
-            $enrol = [
-                "groupid" => $group[$course],
-                "userid" => $alumne
-            ];
 
-            $enrol = ["members" => [0 => $enrol]];
-            $res = $moodle->query("core_group_add_group_members", $enrol);
+            if(isset($groups[$course])){
+                $enrol = [
+                    "groupid" => $groups[$course],
+                    "userid" => $alumne
+                ];
 
-            echo "#";
+                $enrol = ["members" => [0 => $enrol]];
+                $res = $moodle->query("core_group_add_group_members", $enrol);
+
+                echo "#";
+            }else{
+                echo "-";
+            }
+
         }
         echo "\n";
+        $i++;
     }
 
     echo "Matriculando " .count($profes) ." profes del grupo " .strval($grup["nom"]) .".\n";
