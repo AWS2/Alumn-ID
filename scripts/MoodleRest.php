@@ -86,7 +86,7 @@ class MoodleRest {
 
         foreach($data as $v){
             if(!empty($column_key)){
-                if(isset($ret[$v->{$column_key}])){
+                if(isset($v->{$column_key})){
                     $ret[$v->{$column_key}] = $v->{$column};
                 }
             }else{
