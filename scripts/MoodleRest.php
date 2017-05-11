@@ -5,6 +5,7 @@ class MoodleRest {
     private $token = NULL;
     private $type = "rest";
     private $debug = FALSE;
+    private $last_result = NULL;
 
     public function __construct($url = NULL, $token = NULL){
         if(empty($token) and !empty($url)){
@@ -42,7 +43,7 @@ class MoodleRest {
         return $this;
     }
 
-    public function query($type, $data){
+    public function query($type, $data, $column = NULL, $column_key = NULL){
         $url = $this->url . "/webservice/" .$this->type ."/server.php?"
         ."wstoken=" .$this->token ."&"
         ."wsfunction=" .$type ."&"
@@ -67,7 +68,31 @@ class MoodleRest {
         $result = curl_exec($ch);
         curl_close($ch);
 
-        return json_decode($result);
+        $json = json_decode($result);
+        $this->last_result = $json;
+
+        if(!empty($column)){
+            return $this->return_array($column, $column_key, $json);
+        }
+
+        return $json;
+    }
+
+    public function return_array($column, $column_key = NULL, $data = NULL){
+        if(empty($data)){ $data = $this->last_result; }
+        if(empty($data)){ return array(); }
+
+        $ret = array();
+
+        foreach($data as $v){
+            if(!empty($column_key)){
+                $ret[$v->{$column_key}] = $v->{$column};
+            }else{
+                $ret[] = $v->{$column};
+            }
+        }
+
+        return $ret;
     }
 }
 
