@@ -191,7 +191,9 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     $profe_enrol = array();
     foreach($profe_uf as $profe => $profe_ufs){
         foreach($profe_ufs as $uf){
-            $profe_enrol[$profe][] = $courses[$uf];
+            if(isset($courses[$uf])){
+                $profe_enrol[$profe][] = $courses[$uf];
+            }
         }
         $profe_enrol[$profe] = array_unique($profe_enrol[$profe]);
     }
