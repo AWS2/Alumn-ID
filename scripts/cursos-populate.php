@@ -155,20 +155,25 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     $alumnes = array();
     foreach($grup->alumnes->alumne as $alumne){ $alumnes[] = strval($alumne["id"]); }
 
-    // Cargar los profes del grupo
     $profes = array();
-    foreach($grup->continguts->contingut as $contingut){ $profes[] = strval($contingut["professor"]); }
-    $profes = array_unique($profes);
-
-    // Cargar UFs que hay en la clase.
     $ufs = array();
+    $profe_uf = array();
     foreach($grup->continguts->contingut as $contingut){
-        $ufs[] = strval($contingut["contingut"]);
+        $profe = strval($contingut["professor"]);
+        $uf = strval($contingut["contingut"]);
+
+        $profes[] = $profe; // Cargar los profes del grupo
+        $ufs[] = $uf;    // Cargar UFs que hay en la clase.
+
+        $profe_uf[$profe][] = $uf;
     }
 
+    // Quitar duplicados.
+    $profes = array_unique($profes);
     $ufs = array_unique($ufs);
 
     // Cargar cursos a los que se asocian.
+    // UF -> Curso.
     $courses = array();
     foreach($ufs as $uf){
         foreach($xmldata["courses"] as $courseid => $ufids){
@@ -182,6 +187,15 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     // Grupos a los que se van a matricular los alumnos.
     $courses_unique = array_unique(array_values($courses));
 
+    // Crear lista de Profe -> cursos
+    $profe_enrol = array();
+    foreach($profe_uf as $profe => $profe_ufs){
+        foreach($profe_ufs as $uf){
+            $profe_enrol[$profe][] = $courses[$uf];
+        }
+        $profe_enrol[$profe] = array_unique($profe_enrol[$profe]);
+    }
+
     echo "Matriculando " .count($alumnes) ." del grupo " .strval($grup["nom"]) ." en " .count($courses_unique) ." cursos.\n";
     if(count($courses_unique) == 0){
         echo "Ignorando. No hay cursos disponibles.\n";
@@ -194,8 +208,8 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     foreach($courses_unique as $course){
         $groups["groups"][] = [
             "courseid" => $course,
-            "name" => $grup["nom"],
-            "description" => $grup["codi"],
+            "name" => strval($grup["nom"]),
+            "description" => strval($grup["codi"]),
         ];
     }
 
@@ -203,9 +217,8 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     $groups = $moodle->query("core_group_create_groups", $groups, "id", "courseid");
 
     $i = 1;
-    // var_dump($groups);
     foreach($alumnes as $alumne){
-        echo str_pad($i, 4, " ", STR_PAD_LEFT);
+        echo str_pad($i, 4, " ", STR_PAD_LEFT) ." ";
         foreach($courses_unique as $course){
             // Matricular al usuario en el curso.
             $enrol = [
@@ -243,6 +256,29 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
 
     echo "Matriculando " .count($profes) ." profes del grupo " .strval($grup["nom"]) .".\n";
 
+    $i = 1;
+    foreach($profe_enrol as $profe => $cursos){
+        echo str_pad($i, 4, " ", STR_PAD_LEFT) ." ";
+        foreach($cursos as $course){
+            // Matricular al usuario en el curso.
+            $enrol = [
+                "roleid" => $config["teacher"],
+                "userid" => $profe,
+                "courseid" => $course,
+                "timestart" => strtotime($config["from"]),
+                "timeend" => strtotime($config["to"]),
+            ];
+
+            $enrol = ["enrolments" => [0 => $enrol]];
+            $res = $moodle->query("enrol_manual_enrol_users", $enrol);
+
+            // Técnicamente el profesor no será matriculado en un grupo.
+
+            echo "#";
+        }
+        echo "\n";
+        $i++;
+    }
 }
 
 
