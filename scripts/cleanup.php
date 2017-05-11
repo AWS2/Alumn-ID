@@ -20,7 +20,7 @@ sort($categories);
 for($i = 0; $i < count($categories); $i++){
     $data = ["categories" => [0 => ["id" => $categories[$i], "recursive" => 1]]];
     $query = $moodle->query("core_course_delete_categories", $data);
-    echo round(($i + 1) / count($categories)) ."% - Categoría $categories[$i] borrada.\n";
+    echo round(($i + 1) / count($categories) * 100) ."% - Categoría $categories[$i] borrada.\n";
 }
 
 ?>
