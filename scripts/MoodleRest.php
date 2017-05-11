@@ -19,6 +19,10 @@ class MoodleRest {
         }
     }
 
+    public function debug($set = TRUE){
+        $this->debug = (bool) $set;
+    }
+
     public function token($data = NULL){
         if(empty($data)){ return $this->token; }
         $this->token = $data;
