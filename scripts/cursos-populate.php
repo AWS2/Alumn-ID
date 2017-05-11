@@ -121,7 +121,11 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
         array_shift($topics); // Extrae el primer Topic, es GENERAL. No nos sirve.
         $topics = array_values($topics); // Reiniciar las keys del array.
 
+        // Si se ha reconocido más de una UF
         if(count($ufs) >= 1){
+            // Poner los nombres de las UFs en los section de cada curso.
+            // NOTE: Código no probado debido a bug de Moodle que no crea los sections.
+            // En principio debería funcionar.
             for($i = 0; $i < count($ufs); $i++){
                 if(!isset($topics[$i])){ continue; }
 
@@ -184,8 +188,25 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     echo "Matriculando " .count($alumnes) ." del grupo " .strval($grup["nom"]) ." en " .count($courses_unique) ." cursos.\n";
     // TODO Asociar via LDAP con el ID respectivo del alumno para poder matricularlo.
 
+    // Crear cursos en cada grupo.
+    $groups = array();
+    foreach($courses_unique as $course){
+        $groups["groups"][] = [
+            "courseid" => $course,
+            "name" => $grup["nom"],
+            "description" => $grup["codi"],
+        ];
+    }
+
+    $res = $moodle->query("core_group_create_groups", $groups);
+    $groups = array(); // Reciclar variable
+    foreach($res as $r){ $groups[$r->courseid] = $r->id; } // Rellenar con Curso -> Grupo
+
+    $i = 1;
     foreach($alumnes as $alumne){
+        echo str_pad($i, 4, " ", STR_PAD_LEFT);
         foreach($courses_unique as $course){
+            // Matricular al usuario en el curso.
             $enrol = [
                 "roleid" => $config["student"],
                 "userid" => $alumne,
@@ -195,8 +216,21 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
             ];
 
             $enrol = ["enrolments" => [0 => $enrol]];
-            $res = $moodle->query("enrol_manual_enrol_users", $data);
+            $res = $moodle->query("enrol_manual_enrol_users", $enrol);
+
+            // ------------------
+            // Agregar usuario al grupo.
+            $enrol = [
+                "groupid" => $group[$course],
+                "userid" => $alumne
+            ];
+
+            $enrol = ["members" => [0 => $enrol]];
+            $res = $moodle->query("core_group_add_group_members", $enrol);
+
+            echo "#";
         }
+        echo "\n";
     }
 
     echo "Matriculando " .count($profes) ." profes del grupo " .strval($grup["nom"]) .".\n";
