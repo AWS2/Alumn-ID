@@ -184,7 +184,7 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
 
     echo "Matriculando " .count($alumnes) ." del grupo " .strval($grup["nom"]) ." en " .count($courses_unique) ." cursos.\n";
     if(count($courses_unique) == 0){
-        echo "Ignorando. No hay cursos disponibles.";
+        echo "Ignorando. No hay cursos disponibles.\n";
         continue;
     }
     // TODO Asociar via LDAP con el ID respectivo del alumno para poder matricularlo.

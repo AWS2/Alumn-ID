@@ -14,12 +14,12 @@ $moodle->type("rest");
 
 $data = ["criteria" => [0 => ["key" => "parent", "value" => 0]]];
 
-$categories = $moodle->query("core_course_get_categories", $data);
-$categories = array_column($categories, 'id');
+$categories = $moodle->query("core_course_get_categories", $data, "id");
+sort($categories);
 
 foreach($categories as $cat){
     $data = ["categories" => [0 => ["id" => $cat, "recursive" => 1]]];
-    $query = $moodle->query("core_course_delete_categories", $data);    
+    $query = $moodle->query("core_course_delete_categories", $data);
     echo "Categoría $cat borrada.\n";
 }
 
