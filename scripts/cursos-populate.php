@@ -93,7 +93,8 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
             "groupmode" => 1, // no group, separate, visible
             "completionnotify" => 1,
             "courseformatoptions" => [
-                ["name" => "numsections", "value" => max(count($ufs), 1)]
+                ["name" => "numsections", "value" => max(count($ufs), 1)],
+                // ["name" => "sagaid", "value" => strval($course["id"])]
             ],
         ];
 
@@ -187,6 +188,14 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     // Grupos a los que se van a matricular los alumnos.
     $courses_unique = array_unique(array_values($courses));
 
+    echo "Matriculando " .count($alumnes) ." del grupo " .strval($grup["nom"]) ." en " .count($courses_unique) ." cursos.\n";
+    if(count($courses_unique) == 0){
+        echo "Ignorando. No hay cursos disponibles.\n";
+        continue;
+    }
+
+    // Procesar sólo si hay cursos para matricular, o dará error.
+
     // Crear lista de Profe -> cursos
     $profe_enrol = array();
     foreach($profe_uf as $profe => $profe_ufs){
@@ -195,14 +204,11 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
                 $profe_enrol[$profe][] = $courses[$uf];
             }
         }
-        $profe_enrol[$profe] = array_unique($profe_enrol[$profe]);
+        if(!empty($profe_enrol[$profe])){
+            $profe_enrol[$profe] = array_unique($profe_enrol[$profe]);
+        }
     }
 
-    echo "Matriculando " .count($alumnes) ." del grupo " .strval($grup["nom"]) ." en " .count($courses_unique) ." cursos.\n";
-    if(count($courses_unique) == 0){
-        echo "Ignorando. No hay cursos disponibles.\n";
-        continue;
-    }
     // TODO Asociar via LDAP con el ID respectivo del alumno para poder matricularlo.
 
     // Crear cursos en cada grupo.
