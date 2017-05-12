@@ -28,11 +28,11 @@ foreach($xml->alumnes->alumne as $alumne){
     }
 
     // Birthdate
-    $birth = explode("/", strval($alumne["datanaixement"]);
+    $birth = explode("/", strval($alumne["datanaixement"]));
     $birth = array_reverse($birth);
     $data["profile_field_birthdate"] = implode("-", $birth);
 
-    $username = $data["firstname"] ".";
+    $username = $data["firstname"] .".";
     $surnames = explode(" ", $data["lastname"]);
     $username .= $surnames[0];
 
@@ -47,6 +47,7 @@ foreach($xml->alumnes->alumne as $alumne){
     }
 
     $data["username"] = $username;
+    $alumnes[] = $data;
 }
 
 echo implode(",", $cols) ."\n";
