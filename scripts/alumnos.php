@@ -46,7 +46,9 @@ foreach($xml->alumnes->alumne as $alumne){
         $username = $usernamefix;
     }
 
-    $data["username"] = $username;
+    $data["username"] = strtolower($username);
+    $data["username"] = str_replace(["á", "é", "í", "ó", "ú"], ["a", "e", "i", "o", "u"], $data["username"]);
+    $data["username"] = str_replace(["à", "è", "ì", "ò", "ù"], ["a", "e", "i", "o", "u"], $data["username"]);
     $alumnes[] = $data;
 }
 
@@ -58,6 +60,6 @@ foreach($alumnes as $alumne){
         }
         echo ",";
     }
-
+    
     echo "\n";
 }
