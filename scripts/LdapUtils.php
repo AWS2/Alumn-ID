@@ -113,7 +113,10 @@ class LdapUtils {
 			}
 		}
 		foreach($data as $k => $v){
-			$str .= "$k: $v\n";
+			if(!is_array($v)){ $v = [$v]; }
+			foreach($v as $vu){
+				$str .= "$k: $vu\n";
+			}
 		}
 
 		$str .= "\n";
