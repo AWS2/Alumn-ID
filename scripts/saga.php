@@ -35,44 +35,23 @@ echo $ldap->createOU("Users", TRUE);
 
 $ldap->cd("ou=Users,ou=Alumnes", TRUE);
 foreach($alumnes as $alumne){
-	$alumne["sn"] = trim(implode(" ", $alumne["sn"]));
+	fixvals($alumne);
 	echo $ldap->createUser($alumne, "uid=" .$alumne["uid"], "persona");
 }
 
 $ldap->cd("ou=Users,ou=Pares", TRUE);
 foreach($pares as $pare){
-	$alumne["sn"] = trim(implode(" ", $alumne["sn"]));
+	fixvals($pare);
 	echo $ldap->createUser($pare, "uid=" .$pare["uid"], "persona");
 }
 
 $ldap->cd("ou=Users,ou=Professors", TRUE);
 foreach($profes as $profe){
-	$alumne["sn"] = trim(implode(" ", $alumne["sn"]));
+	fixvals($profe);
 	echo $ldap->createUser($profe, "uid=" .$profe["uid"], "persona");
 }
 
 // ------------------------
-
-function displayldif($array, $ou = "users", $dom = "ester.cat"){
-	$uid = "alguno";
-	if(isset($array["uid"])){ $uid = $array["uid"]; }
-	$dn = "uid=$uid,ou=$ou," .domain2dc($dom);
-
-	// posixAccount inetOrgPerson organizationalPerson top
-	$defclass = ["persona"];
-
-	$str = "dn: " .$dn ."\n";
-	// $str .= "changetype: add\n"; // HACK
-	foreach($defclass as $class){ $str .= "objectClass: $class\n"; }
-
-	foreach($array as $k => $v){
-		if(!is_array($v)){ $v = [$v]; }
-		foreach($v as $v1){
-			$str .= "$k: $v1\n";
-		}
-	}
-	return $str;
-}
 
 function fixvals(&$data){
 	if(isset($data["gender"])){
@@ -99,7 +78,7 @@ function fixvals(&$data){
 	$user .= $ape;
 
 	$user = strtolower(trim($user));
-	$user = sanstr($user); // Remove accents
+	// $user = sanstr($user); // Remove accents
 	// $data["uid"] = $user; // HACK
 	// unset($user);
 	unset($ape);
