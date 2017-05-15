@@ -51,7 +51,7 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
     $courses = array();
     // Listar los módulos MP que vamos a crear como cursos.
     foreach($titulo->contingut as $contingut){
-        if($contingut['categoria'] != 'Mòdul'){ continue; }
+        if(!in_array($contingut['categoria'], ["Mòdul", "Modul"])){ continue; }
         $codi = trim(strval($contingut['codi']));
         if($codi == "DUA"){ continue; } // Dual
         $courses[$codi] = $contingut; // Agregar todo el valor XML.
