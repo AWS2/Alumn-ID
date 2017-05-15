@@ -16,10 +16,11 @@ class LdapUtils {
 	 * @return string      Si $set es NULL, devuelve el dominio actual.
 	 */
     public function domain($set = NULL){
-        if(!empty($set)){
+        if(!empty($set) and $set !== TRUE){
             $this->domain = $set;
             $this->dc = $this->domain2DC($set);
         }
+		if($set === TRUE){ return $this->dc; }
         return $this->domain;
     }
 
@@ -90,6 +91,9 @@ class LdapUtils {
 		if(empty($rdn)){
 			if(!isset($data["cn"])){ return FALSE; }
 			$rdn = $data["cn"] ."," .$this->pwd();
+		}elseif(strpos($rdn, "=") === FALSE){
+			if(!isset($data[$rdn])){ return FALSE; }
+			$rdn = $rdn ."=" .$data[$rdn] ."," .$this->pwd();
 		}elseif(strpos($rdn, ",") !== FALSE){
 			$rdn = $rdn . "," .$this->pwd();
 		}

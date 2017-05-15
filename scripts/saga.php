@@ -36,19 +36,29 @@ echo $ldap->createOU("Users", TRUE);
 $ldap->cd("ou=Users,ou=Alumnes", TRUE);
 foreach($alumnes as $alumne){
 	fixvals($alumne);
-	echo $ldap->createUser($alumne, "uid=" .$alumne["uid"], "persona");
+
+	if(isset($alumne["seeAlso"])){
+		$final = array();
+		if(!is_array($alumne["seeAlso"])){ $alumne["seeAlso"] = [$alumne["seeAlso"]]; }
+		foreach($alumne["seeAlso"] as $also){
+			$final[] = "uid=$also,ou=Pares,ou=Users," .$ldap->domain(TRUE);
+		}
+		$alumne["seeAlso"] = $final;
+	}
+
+	echo $ldap->createUser($alumne, "uid", "persona");
 }
 
 $ldap->cd("ou=Users,ou=Pares", TRUE);
 foreach($pares as $pare){
 	fixvals($pare);
-	echo $ldap->createUser($pare, "uid=" .$pare["uid"], "persona");
+	echo $ldap->createUser($pare, "uid", "persona");
 }
 
 $ldap->cd("ou=Users,ou=Professors", TRUE);
 foreach($profes as $profe){
 	fixvals($profe);
-	echo $ldap->createUser($profe, "uid=" .$profe["uid"], "persona");
+	echo $ldap->createUser($profe, "uid", "persona");
 }
 
 // ------------------------
@@ -94,7 +104,7 @@ function fixvals(&$data){
 		$final = array();
 		if(!is_array($data["seeAlso"])){ $data["seeAlso"] = [$data["seeAlso"]]; }
 		foreach($data["seeAlso"] as $also){
-			$final[] = "uid=$also,ou=users," .domain2dc("ester.cat");
+			$final[] = "uid=$also,ou=users,dc=ester,dc=cat";
 		}
 		$data["seeAlso"] = $final;
 	}
