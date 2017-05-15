@@ -100,14 +100,6 @@ function fixvals(&$data){
 	if(isset($data["st"])){
 		if($data["st"] == "08"){ $data["st"] = "BARCELONA"; }
 	}
-	if(isset($data["seeAlso"])){
-		$final = array();
-		if(!is_array($data["seeAlso"])){ $data["seeAlso"] = [$data["seeAlso"]]; }
-		foreach($data["seeAlso"] as $also){
-			$final[] = "uid=$also,ou=users,dc=ester,dc=cat";
-		}
-		$data["seeAlso"] = $final;
-	}
 
 	$data["cn"][] = $data["givenName"] ." " .$data["sn"];
 	$data["cn"][] = $user;
