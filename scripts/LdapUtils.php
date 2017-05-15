@@ -78,7 +78,7 @@ class LdapUtils {
 		$rdn = "ou=$name," .$this->pwd();
 		$data = ["ou" => $name];
 		if($enter){ $this->cd("ou=$name"); }
-		return $this->generateLdif($rdn, $data, "top");
+		return $this->generateLdif($rdn, $data, ["organizationalUnit", "top"]);
     }
 
 	public function createUser($data, $rdn = NULL, $classes = NULL){
