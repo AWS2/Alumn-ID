@@ -43,7 +43,7 @@ class LdapUtils {
     public function pwd(){
 		$path = $this->path;
 		if(!empty($path)){ $path .= ","; }
-		return $path .$this->path;
+		return $path .$this->dc;
     }
 
     public function cd($path, $absolute = FALSE){
@@ -69,9 +69,9 @@ class LdapUtils {
 	 */
     public function createOU($name, $enter = TRUE){
 		$path = $this->path;
-		if($enter){ $this->cd($name); }
-		$rdn = "ou=$name" .$this->pwd();
+		$rdn = "ou=$name," .$this->pwd();
 		$data = ["ou" => $name];
+		if($enter){ $this->cd($name); }
 		return $this->generateLdif($rdn, $data, "top");
     }
 
