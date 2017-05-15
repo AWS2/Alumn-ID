@@ -71,7 +71,7 @@ class LdapUtils {
 		$path = $this->path;
 		$rdn = "ou=$name," .$this->pwd();
 		$data = ["ou" => $name];
-		if($enter){ $this->cd($name); }
+		if($enter){ $this->cd("ou=$name"); }
 		return $this->generateLdif($rdn, $data, "top");
     }
 
