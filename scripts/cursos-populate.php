@@ -20,7 +20,17 @@ $xmldata = array();
 foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
 
     // Si no es Grado Medio o Superior, ignorar. BATX y ESO dan problemas.
-    if(!in_array(strval($titulo["etapa"]), ["CFPM", "CFPS"])){ continue; }
+    if($config["debug"]){
+        echo strval($titulo["id"]) ." es " .strval($titulo["etapa"]) .".";
+    }
+
+    if(!in_array(strval($titulo["etapa"]), ["CFPM", "CFPS"])){
+        if($config["debug"]){
+            echo " Saltando.\n";
+        }
+
+        continue;
+    }
 
     $tituloid = strval($titulo["etapa"]) ."-" .strval($titulo["subetapa"]);
     $data = [
@@ -31,6 +41,10 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
     ];
 
     $category = ["categories" => [0 => $data]];
+    if($config["debug"]){
+        echo " Creando categoría...\n";
+    }
+
     $res = $moodle->query("core_course_create_categories", $category);
 
     if(isset($res->exception)){
@@ -51,13 +65,33 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
     $courses = array();
     // Listar los módulos MP que vamos a crear como cursos.
     foreach($titulo->contingut as $contingut){
-        if(!in_array($contingut['categoria'], ["Mòdul", "Modul"])){ continue; }
+        if($config["debug"]){
+            echo "Contenido " .strval($contingut["id"]) ." es " .strval($contingut["categoria"]) .".";
+        }
+
         $codi = trim(strval($contingut['codi']));
-        if($codi == "DUA"){ continue; } // Dual
+
+        if(
+            !in_array($contingut['categoria'], ["Mòdul", "Modul"]) or
+            $codi == "DUA" // Skipping
+        ){
+            if($config["debug"]){
+                echo " No es modulo, skipping.\n";
+            }
+            continue;
+        }
+
+        if($config["debug"]){
+            echo " Agregado.\n";
+        }
+
         $courses[$codi] = $contingut; // Agregar todo el valor XML.
     }
 
     ksort($courses); // Ordenar por Key - codi.
+    if($config["debug"]){
+        echo "Hay " .count($courses) ." cursos.\n";
+    }
 
     // Procesar por cada modulo
     foreach($courses as $codi => $course){
@@ -66,7 +100,7 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
         $ufs = array();
         foreach($titulo->contingut as $contingut){
             if(
-                $contingut['categoria'] != 'Crèdit' or
+                !in_array($contingut['categoria'], ["Credit", "Crèdit"]) or
                 $contingut['tipus'] != 'Lectiu'
             ){ continue; }
 
