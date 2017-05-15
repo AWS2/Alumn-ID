@@ -117,8 +117,8 @@ class LdapUtils {
 	 */
     public function XMLParser($selector, $assocs){
     	$ret = array();
-		$data = array();
     	foreach($selector as $p){
+			$data = array();
 	        $vals = current($p->attributes());
     		foreach($vals as $k => $v){
     			if(in_array($k, array_keys($assocs))){
