@@ -32,22 +32,26 @@ echo $ldap->createOU("Users", TRUE);
 	echo $ldap->createOU("Alumnes", FALSE);
 	echo $ldap->createOU("Professors", FALSE);
 	echo $ldap->createOU("Pares", FALSE);
-$ldap->resetPath();
 
-$ldap->cd("ou=Users,ou=Alumnes");
+$ldap->cd("ou=Users,ou=Alumnes", TRUE);
 foreach($alumnes as $alumne){
+	$alumne["sn"] = trim(implode(" ", $alumne["sn"]));
 	echo $ldap->createUser($alumne, "uid=" .$alumne["uid"], "persona");
 }
 
-$ldap->cd("ou=Users,ou=Alumnes", TRUE);
+$ldap->cd("ou=Users,ou=Pares", TRUE);
 foreach($pares as $pare){
+	$alumne["sn"] = trim(implode(" ", $alumne["sn"]));
 	echo $ldap->createUser($pare, "uid=" .$pare["uid"], "persona");
 }
 
 $ldap->cd("ou=Users,ou=Professors", TRUE);
 foreach($profes as $profe){
+	$alumne["sn"] = trim(implode(" ", $alumne["sn"]));
 	echo $ldap->createUser($profe, "uid=" .$profe["uid"], "persona");
 }
+
+// ------------------------
 
 function displayldif($array, $ou = "users", $dom = "ester.cat"){
 	$uid = "alguno";
