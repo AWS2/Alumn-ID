@@ -51,6 +51,11 @@ class LdapUtils {
 		if(!empty($this->path)){
 			$this->path = "," .$this->path;
 		}
+		// Girar datos
+		if(is_string($path)){ $path = explode(",", $path); }
+		$path = array_reverse($path);
+		$path = implode(",", $path);
+
 		$this->path = $path .$this->path;
     }
 
@@ -74,6 +79,23 @@ class LdapUtils {
 		if($enter){ $this->cd("ou=$name"); }
 		return $this->generateLdif($rdn, $data, "top");
     }
+
+	public function createUser($data, $rdn = NULL, $classes = NULL){
+		if(empty($classes)){ $classes = array(); }
+		elseif(is_string($classes)){ $classes = [$classes]; }
+		$classes[] = "posixAccount";
+		$classes[] = "inetOrgPerson";
+		$classes = array_unique($classes);
+
+		if(empty($rdn)){
+			if(!isset($data["cn"])){ return FALSE; }
+			$rdn = $data["cn"] ."," .$this->pwd();
+		}elseif(strpos($rdn, ",") !== FALSE){
+			$rdn = $rdn . "," .$this->pwd();
+		}
+
+		return $this->generateLdif($rdn, $data, $classes);
+	}
 
 	/**
 	 * Genera un LDIF según los datos.
