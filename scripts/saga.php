@@ -23,7 +23,7 @@ $assocs = [
 
 $ldap = new LdapUtils("ester.cat");
 
-const $GID_Users = 500;
+$GID_Users = 500;
 
 $alumnes	= $ldap->XMLParser($xml->alumnes->alumne, $assocs);
 $pares		= $ldap->XMLParser($xml->{"tutors-legals"}->{"tutor-legal"}, $assocs);
