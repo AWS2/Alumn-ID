@@ -63,6 +63,28 @@ foreach($profes as $profe){
 
 // ------------------------
 
+$ldap->cd("ou=Groups", TRUE);
+
+$assocs = [
+	"nom" => "cn",
+	"id" => "businessCategory"
+];
+
+foreach($xml->grups->grup as $grup){
+	$clase = $ldap->XMLParser($grup, $assocs);
+	$alumnes = array();
+
+	foreach($grup->alumnes->alumne as $alumne){
+		$alumnes[] = strval($alumne["id"]);
+	}
+
+	$alumnes = $ldap->generateMultipath($alumnes, "uid", "ou=Alumnes,ou=Users," .$ldap->domain(TRUE));
+	echo $ldap->createGroupOfNames($clase["cn"], $alumnes, $clase);
+}
+
+
+// ------------------------
+
 function fixvals(&$data){
 	if(isset($data["gender"])){
 		// if($data["gender"] == "H"){ $data["gender"] = "MALE"; }
