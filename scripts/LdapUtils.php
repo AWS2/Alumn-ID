@@ -58,6 +58,7 @@ class LdapUtils {
 		$path = implode(",", $path);
 
 		$this->path = $path .$this->path;
+		return $this;
     }
 
 	/**
@@ -65,6 +66,7 @@ class LdapUtils {
 	 */
     public function resetPath(){
 		$this->path = "";
+		return $this;
     }
 
 	/**
@@ -101,6 +103,75 @@ class LdapUtils {
 		return $this->generateLdif($rdn, $data, $classes);
 	}
 
+	public function createPosixGroup($cn, $gidNumber = NULL, $extra = NULL){
+		if(is_array($cn)){
+			if(isset($cn["gidNumber"])){
+				$gidNumber = $cn["gidNumber"];
+				unset($cn["gidNumber"]);
+			}
+			if(isset($cn["cn"])){
+				$extra = $cn;
+				$cn = $cn["cn"];
+				unset($extra["cn"]);
+			}
+		}
+
+		$gidNumber = intval($gidNumber);
+		if(empty($gidNumber)){ return FALSE; }
+
+		if(empty($extra)){ $extra = array(); }
+		$extra["cn"] = $cn;
+		$extra["gidNumber"] = $gidNumber;
+
+		$rdn = "cn=$cn," .$this->pwd();
+
+		return $this->generateLdif($rdn, $extra, ["posixAccount", "top"]);
+	}
+
+	public function createGroupOfNames($cn, $members, $extra = NULL){
+		// cn, member => RDN, businessCategory, description, o, ou, owner -> RDN, seeAlso -> RDN
+
+		if(is_string($members)){
+			$members = $this->generateMultipath($members, "cn", TRUE);
+			/* if(strpos($members, "=") === FALSE){
+				// Try to fix by adding member to this path.
+				$members = "cn=$members," .$this->pwd();
+			} */
+		}
+
+		if(empty($extra)){ $extra = array(); }
+		$extra["member"] = $members;
+		$extra["cn"] = $cn;
+
+		$rdn = "cn=$cn," .$this->pwd();
+		return $this->generateLdif($rdn, $extra, ["groupOfNames", "top"]);
+	}
+
+	public function generateMultipath($content, $rdn = NULL, $path = NULL){
+		if(empty($path) or $path === TRUE){ $path = $this->pwd(); }
+		if(is_string($content)){ $content = [$content]; }
+		$data = array();
+
+		foreach($content as $user){
+			$rdn_set = $rdn;
+
+			if(strpos($user, "=") !== FALSE){
+				$user = explode("=", $user);
+				$rdn_set = $user[0];
+				$user = $user[1]; // array_pop($user);
+			}
+			$user = str_replace(",", "", $user);
+			if(empty($rdn_set)){
+				$rdn_set = "cn";
+				// $rdn = "cn"; // Set default?
+			}
+
+			$data[] = $rdn_set ."=" .$user ."," .$path;
+		}
+
+		return $data;
+	}
+
 	/**
 	 * Genera un LDIF según los datos.
 	 * @param  string $rdn     RDN Completo.
@@ -109,6 +180,9 @@ class LdapUtils {
 	 * @return string          LDIF generado.
 	 */
 	private function generateLdif($rdn, $data, $classes = NULL){
+		if(strpos($rdn, ",") === FALSE){
+			$rdn = $rdn ."," .$this->pwd();
+		}
 		$str = "dn: $rdn\n";
 		if(!empty($classes)){
 			if(is_string($classes)){ $classes = [$classes]; }
