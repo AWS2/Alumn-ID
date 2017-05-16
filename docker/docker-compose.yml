@@ -36,8 +36,10 @@ services:
             - "MYSQL_USER=moodle"
             - "MYSQL_PASSWORD=moodle"
             - "MYSQL_DATABASE=moodle"
-        ports:
-            - "3306:3306"
+
+# Do not expose ports to outside unless required.
+#        ports:
+#            - "3306:3306"
         deploy:
             restart_policy:
                 condition: on-failure
@@ -45,7 +47,13 @@ services:
             - '/data/mariadb:/var/lib/mysql'
 
     moodle:
-        image: jhardison/moodle:latest # 3.2
+        # image: jhardison/moodle:latest # 3.2
+        build:
+            context: ./docker-moodle
+            dockerfile: Dockerfile
+            cache_from:
+                - ubuntu:16.04
+        container_name: moodle
         environment:
             - "MOODLE_URL=http://example.com"
             - "DB_ENV_MYSQL_DATABASE=moodle"
