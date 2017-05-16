@@ -54,19 +54,19 @@ foreach($alumnes as $alumne){
 	$alumne["gidNumber"] = $GID_Users;
 	$alumne["userPassword"] = $alumne["uid"]; // TODO
 
-	echo $ldap->createUser($alumne, "uid", "persona");
+	echo $ldap->createUser($alumne, "uidNumber", "persona");
 }
 
 $ldap->cd("ou=Users,ou=Pares", TRUE);
 foreach($pares as $pare){
 	fixvals($pare);
-	echo $ldap->createUser($pare, "uid", "persona");
+	echo $ldap->createUser($pare, "uidNumber", "persona");
 }
 
 $ldap->cd("ou=Users,ou=Professors", TRUE);
 foreach($profes as $profe){
 	fixvals($profe);
-	echo $ldap->createUser($profe, "uid", "persona");
+	echo $ldap->createUser($profe, "uidNumber", "persona");
 }
 
 // ------------------------
@@ -134,7 +134,7 @@ function fixvals(&$data){
 	}
 
 	$data["cn"] = $data["givenName"] ." " .$data["sn"];
-	$data["uid"][] = $user;
+	$data["uid"] = $user;
 }
 
 ?>
