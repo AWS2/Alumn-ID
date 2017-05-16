@@ -5,7 +5,7 @@ require_once 'LdapUtils.php';
 $xml = simplexml_load_file("dades-saga.xml");
 
 $assocs = [
-	"id" => "uid", // uidNumber
+	"id" => "uidNumber", // uid
 	"nom" => "givenName",
 	"cognom1" => "sn",
 	"cognom2" => "sn",
@@ -23,6 +23,8 @@ $assocs = [
 
 $ldap = new LdapUtils("ester.cat");
 
+const $GID_Users = 500;
+
 $alumnes	= $ldap->XMLParser($xml->alumnes->alumne, $assocs);
 $pares		= $ldap->XMLParser($xml->{"tutors-legals"}->{"tutor-legal"}, $assocs);
 $profes		= $ldap->XMLParser($xml->personal->personal, $assocs);
@@ -33,6 +35,9 @@ echo $ldap->createOU("Users", TRUE);
 	echo $ldap->createOU("Professors", FALSE);
 	echo $ldap->createOU("Pares", FALSE);
 
+$ldap->cd("ou=Groups", TRUE);
+echo $ldap->createPosixGroup("Users", $GID_Users, ["description" => "Usuarios que pueden acceder."]);
+
 $ldap->cd("ou=Users,ou=Alumnes", TRUE);
 foreach($alumnes as $alumne){
 	fixvals($alumne);
@@ -41,10 +46,13 @@ foreach($alumnes as $alumne){
 		$final = array();
 		if(!is_array($alumne["seeAlso"])){ $alumne["seeAlso"] = [$alumne["seeAlso"]]; }
 		foreach($alumne["seeAlso"] as $also){
-			$final[] = "uid=$also,ou=Pares,ou=Users," .$ldap->domain(TRUE);
+			$final[] = "uidNumber=$also,ou=Pares,ou=Users," .$ldap->domain(TRUE);
 		}
 		$alumne["seeAlso"] = $final;
 	}
+	$alumne["homeDirectory"] = "/home/" .$alumne["uid"];
+	$alumne["gidNumber"] = $GID_Users;
+	$alumne["userPassword"] = $alumne["uid"]; // TODO
 
 	echo $ldap->createUser($alumne, "uid", "persona");
 }
@@ -125,8 +133,8 @@ function fixvals(&$data){
 		if($data["st"] == "08"){ $data["st"] = "BARCELONA"; }
 	}
 
-	$data["cn"][] = $data["givenName"] ." " .$data["sn"];
-	$data["cn"][] = $user;
+	$data["cn"] = $data["givenName"] ." " .$data["sn"];
+	$data["uid"][] = $user;
 }
 
 ?>
