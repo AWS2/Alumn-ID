@@ -67,7 +67,8 @@ $ldap->cd("ou=Groups", TRUE);
 
 $assocs = [
 	"nom" => "cn",
-	"id" => "businessCategory"
+	"id" => "businessCategory",
+	"codi" => "description",
 ];
 
 foreach($xml->grups->grup as $grup){
