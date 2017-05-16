@@ -71,7 +71,8 @@ $assocs = [
 ];
 
 foreach($xml->grups->grup as $grup){
-	$clase = $ldap->XMLParser($grup, $assocs);
+	$clase = $ldap->XMLParser($grup, $assocs, TRUE);
+	$clase = $clase[0];
 	$alumnes = array();
 
 	foreach($grup->alumnes->alumne as $alumne){

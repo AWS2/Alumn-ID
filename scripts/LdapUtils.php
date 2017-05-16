@@ -218,8 +218,9 @@ class LdapUtils {
 	 * @param array $assocs Array asociativo para convertir los datos.
 	 * @return array
 	 */
-    public function XMLParser($selector, $assocs){
+    public function XMLParser($selector, $assocs, $unique = FALSE){
     	$ret = array();
+		if($unique){ $selector = [$selector]; }
     	foreach($selector as $p){
 			$data = array();
 	        $vals = current($p->attributes());
