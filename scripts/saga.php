@@ -24,6 +24,7 @@ $assocs = [
 $ldap = new LdapUtils("ester.cat");
 
 $GID_Users = 500;
+$GID_Person = 501;
 
 $alumnes	= $ldap->XMLParser($xml->alumnes->alumne, $assocs);
 $pares		= $ldap->XMLParser($xml->{"tutors-legals"}->{"tutor-legal"}, $assocs);
@@ -37,6 +38,7 @@ echo $ldap->createOU("Users", TRUE);
 
 $ldap->cd("ou=Groups", TRUE);
 echo $ldap->createPosixGroup("Users", $GID_Users, ["description" => "Usuarios que pueden acceder."]);
+echo $ldap->createPosixGroup("Person", $GID_Person, ["description" => "Usuarios de acceso limitado."]);
 
 $ldap->cd("ou=Users,ou=Alumnes", TRUE);
 foreach($alumnes as $alumne){
@@ -50,7 +52,7 @@ foreach($alumnes as $alumne){
 		}
 		$alumne["seeAlso"] = $final;
 	}
-	$alumne["homeDirectory"] = "/home/" .$alumne["uid"];
+
 	$alumne["gidNumber"] = $GID_Users;
 	$alumne["userPassword"] = $ldap->hash($alumne["uid"], "sha1");
 
@@ -60,12 +62,17 @@ foreach($alumnes as $alumne){
 $ldap->cd("ou=Users,ou=Pares", TRUE);
 foreach($pares as $pare){
 	fixvals($pare);
+	$pare["gidNumber"] = $GID_Person;
 	echo $ldap->createUser($pare, "uidNumber", "persona");
 }
 
 $ldap->cd("ou=Users,ou=Professors", TRUE);
 foreach($profes as $profe){
 	fixvals($profe);
+
+	$profe["gidNumber"] = $GID_Users;
+	$profe["userPassword"] = $ldap->hash($profe["uid"], "sha1");
+
 	echo $ldap->createUser($profe, "uidNumber", "persona");
 }
 

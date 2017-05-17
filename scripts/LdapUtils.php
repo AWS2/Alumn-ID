@@ -138,6 +138,11 @@ class LdapUtils {
 			$data["homeDirectory"] = "/home/" .$data["uid"];
 		}
 
+		$must = ["cn", "sn", "uid", "gidNumber", "homeDirectory"];
+		foreach($must as $m){
+			if(!isset($data["m"])){ return FALSE; }
+		}
+
 		return $this->generateLdif($rdn, $data, $classes);
 	}
 
