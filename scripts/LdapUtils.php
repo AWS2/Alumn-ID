@@ -168,7 +168,7 @@ class LdapUtils {
 
 		$rdn = "cn=$cn," .$this->pwd();
 
-		return $this->generateLdif($rdn, $extra, ["posixAccount", "top"]);
+		return $this->generateLdif($rdn, $extra, ["posixGroup", "top"]);
 	}
 
 	public function createGroupOfNames($cn, $members, $extra = NULL){
