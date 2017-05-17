@@ -53,6 +53,7 @@ foreach($alumnes as $alumne){
 		$alumne["seeAlso"] = $final;
 	}
 
+	$alumne["uid"] = $ldap->sanitizeStr($alumne["uid"]);
 	$alumne["gidNumber"] = $GID_Users;
 	$alumne["userPassword"] = $ldap->hash($alumne["uid"], "sha1");
 
@@ -63,6 +64,7 @@ $ldap->cd("ou=Users,ou=Pares", TRUE);
 foreach($pares as $pare){
 	fixvals($pare);
 	$pare["gidNumber"] = $GID_Person;
+	$pare["uid"] = $ldap->sanitizeStr($pare["uid"]);
 	echo $ldap->createUser($pare, "uidNumber", "persona");
 }
 
@@ -71,6 +73,7 @@ foreach($profes as $profe){
 	fixvals($profe);
 
 	$profe["gidNumber"] = $GID_Users;
+	$profe["uid"] = $ldap->sanitizeStr($profe["uid"]);
 	$profe["userPassword"] = $ldap->hash($profe["uid"], "sha1");
 
 	echo $ldap->createUser($profe, "uidNumber", "persona");
