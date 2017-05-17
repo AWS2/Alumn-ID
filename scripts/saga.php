@@ -63,8 +63,11 @@ foreach($alumnes as $alumne){
 $ldap->cd("ou=Users,ou=Pares", TRUE);
 foreach($pares as $pare){
 	fixvals($pare);
+
 	$pare["gidNumber"] = $GID_Person;
 	$pare["uid"] = $ldap->sanitizeStr($pare["uid"]);
+	$pare["userPassword"] = $ldap->hash($pare["uid"], "sha1");
+
 	echo $ldap->createUser($pare, "uidNumber", "persona");
 }
 
