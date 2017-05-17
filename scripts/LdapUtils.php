@@ -61,6 +61,40 @@ class LdapUtils {
 		return $this;
     }
 
+	public function hash($password, $type = "sha"){
+		$allowed = ["sha", "sha1", "sha512", "ssha", "md5", "crypt"];
+		$type = strtolower($type);
+		if(!in_array($type, $allowed)){ return FALSE; }
+
+		$hash = "";
+
+		switch ($type) {
+			case 'sha1':
+			case 'sha':
+				$type = "sha";
+				$hash = sha1($password);
+			break;
+
+			case 'sha512':
+				if(function_exists("hash")){
+					$hash = hash('sha512', $password);
+				}else{
+					return $this->hash($password, "sha1");
+				}
+			break;
+
+			case 'md5':
+				$hash = md5($password);
+			break;
+		}
+
+		if(empty($hash)){ return NULL; }
+
+		$hash = base64_encode(hex2bin($hash));
+
+		return '{' .strtoupper($type) .'}' .$hash;
+	}
+
 	/**
 	 * Reinicia la ruta a la raiz.
 	 */
@@ -98,6 +132,10 @@ class LdapUtils {
 			$rdn = $rdn ."=" .$data[$rdn] ."," .$this->pwd();
 		}elseif(strpos($rdn, ",") !== FALSE){
 			$rdn = $rdn . "," .$this->pwd();
+		}
+
+		if(!isset($data["homeDirectory"])){
+			$data["homeDirectory"] = "/home/" .$data["uid"];
 		}
 
 		return $this->generateLdif($rdn, $data, $classes);

@@ -52,7 +52,7 @@ foreach($alumnes as $alumne){
 	}
 	$alumne["homeDirectory"] = "/home/" .$alumne["uid"];
 	$alumne["gidNumber"] = $GID_Users;
-	$alumne["userPassword"] = $alumne["uid"]; // TODO
+	$alumne["userPassword"] = $ldap->hash($alumne["uid"], "sha1");
 
 	echo $ldap->createUser($alumne, "uidNumber", "persona");
 }
