@@ -26,6 +26,10 @@ $ldap = new LdapUtils("ester.cat");
 $GID_Users = 500;
 $GID_Person = 501;
 
+// ------------------------
+// Definir estructura / OU basica.
+
+
 $alumnes	= $ldap->XMLParser($xml->alumnes->alumne, $assocs);
 $pares		= $ldap->XMLParser($xml->{"tutors-legals"}->{"tutor-legal"}, $assocs);
 $profes		= $ldap->XMLParser($xml->personal->personal, $assocs);
@@ -40,6 +44,9 @@ $ldap->cd("ou=Groups", TRUE);
 echo $ldap->createPosixGroup("Users", $GID_Users, ["description" => "Usuarios que pueden acceder."]);
 echo $ldap->createPosixGroup("Person", $GID_Person, ["description" => "Usuarios de acceso limitado."]);
 
+// ------------------------
+// Crear alumnos, profesores y padres.
+
 $ldap->cd("ou=Users,ou=Alumnes", TRUE);
 foreach($alumnes as $alumne){
 	fixvals($alumne);
@@ -48,7 +55,7 @@ foreach($alumnes as $alumne){
 		$final = array();
 		if(!is_array($alumne["seeAlso"])){ $alumne["seeAlso"] = [$alumne["seeAlso"]]; }
 		foreach($alumne["seeAlso"] as $also){
-			$final[] = "uidNumber=$also,ou=Pares,ou=Users," .$ldap->domain(TRUE);
+			$final[] = $ldap->path("uidNumber=$also,ou=Pares,ou=Users", TRUE);
 		}
 		$alumne["seeAlso"] = $final;
 	}
@@ -83,6 +90,7 @@ foreach($profes as $profe){
 }
 
 // ------------------------
+// Crear grupos clases
 
 $ldap->cd("ou=Groups", TRUE);
 
@@ -101,12 +109,12 @@ foreach($xml->grups->grup as $grup){
 		$alumnes[] = strval($alumne["id"]);
 	}
 
-	$alumnes = $ldap->generateMultipath($alumnes, "uid", "ou=Alumnes,ou=Users," .$ldap->domain(TRUE));
+	$alumnes = $ldap->generateMultipath($alumnes, "uid", $ldap->path("ou=Alumnes,ou=Users", TRUE);
 	echo $ldap->createGroupOfNames($clase["cn"], $alumnes, $clase);
 }
 
-
 // ------------------------
+// Crear groupOfNames de Padres y Profes para gestión Django.
 
 $ldap->cd("ou=Groups", TRUE);
 
