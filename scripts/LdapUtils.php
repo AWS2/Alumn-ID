@@ -184,33 +184,6 @@ class LdapUtils {
 		return $this->generateLdif($rdn, $data, $classes);
 	}
 
-	public function addMemberGroup($members, $path = NULL){
-		if(!is_array($members)){ $members = [$members]; }
-		return $this->__genericMemberToGroup($members, TRUE, $path);
-	}
-
-	public function deleteMemberGroup($members, $path){
-		if(!is_array($members)){ $members = [$members]; }
-		return $this->__genericMemberToGroup($members, FALSE, $path);
-	}
-
-	private function __genericMemberToGroup($members, $fieldAction, $path = NULL){
-		$data = array();
-		if(empty($path)){ $path = $this->pwd(); }
-
-		if($fieldAction === TRUE){ $fieldAction = "add"; }
-		elseif($fieldAction === FALSE){ $fieldAction = "delete"; }
-
-		foreach($members as $member){
-			$data["member"][] = $member;
-		}
-
-		$data["changeType"] = "modify";
-		$data[$fieldAction] = "member";
-
-		return $this->generateLdif($path, $data);
-	}
-
 	public function createPosixGroup($cn, $gidNumber = NULL, $extra = NULL){
 		if(is_array($cn)){
 			if(isset($cn["gidNumber"])){
