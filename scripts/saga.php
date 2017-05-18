@@ -109,7 +109,7 @@ foreach($xml->grups->grup as $grup){
 		$alumnes[] = strval($alumne["id"]);
 	}
 
-	$alumnes = $ldap->generateMultipath($alumnes, "uid", $ldap->path("ou=Alumnes,ou=Users", TRUE);
+	$alumnes = $ldap->generateMultipath($alumnes, "uid", $ldap->path("ou=Alumnes,ou=Users", TRUE));
 	echo $ldap->createGroupOfNames($clase["cn"], $alumnes, $clase);
 }
 
