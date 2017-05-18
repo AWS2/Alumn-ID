@@ -108,6 +108,15 @@ foreach($xml->grups->grup as $grup){
 
 // ------------------------
 
+$ldap->cd("ou=Groups", TRUE);
+
+$pares_id = array_column($pares, "uidNumber");
+$pares_id = $ldap->generateMultipath($pares_id, "uidNumber", $ldap->path("cn=Pares,ou=Users", TRUE));
+
+echo $ldap->createGroupOfNames("Pares", $pares_id, ["description" => "Pares que poden accedir a la aplicacio de gestio."]);
+
+// ------------------------
+
 function fixvals(&$data){
 	if(isset($data["gender"])){
 		// if($data["gender"] == "H"){ $data["gender"] = "MALE"; }
