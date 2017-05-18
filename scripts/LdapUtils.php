@@ -61,8 +61,15 @@ class LdapUtils {
 		return $this;
     }
 
-	public function hash($password, $type = "sha"){
-		$allowed = ["sha", "sha1", "sha512", "ssha", "md5", "crypt"];
+	public function hash($password, $type = "sha", $salt = NULL){
+		// Add option to function.
+		if(!empty($salt) && !empty($type) && strtolower($salt) == "ssha"){
+			// Function called as $pass, $salt, $type. Reorder.
+			$salt = $type;
+			$password = [$password, $salt];
+			$type = "ssha";
+		}
+		$allowed = ["sha", "sha1", "sha512", "ssha", "md5"];
 		$type = strtolower($type);
 		if(!in_array($type, $allowed)){ return FALSE; }
 
@@ -72,25 +79,37 @@ class LdapUtils {
 			case 'sha1':
 			case 'sha':
 				$type = "sha";
-				$hash = sha1($password);
+				$hash = hex2bin(sha1($password));
+			break;
+			case 'ssha':
+				if(empty($salt)){
+					$salt = mt_rand(10000000, 99999999);
+				}
+				if(is_array($password) and count($password) == 2){
+					$salt = $password[1];
+					$password = $password[0];
+				}
+				$hash = sha1($password . $salt) . $salt;
 			break;
 
 			case 'sha512':
 				if(function_exists("hash")){
-					$hash = hash('sha512', $password);
+					$hash = hex2bin(hash('sha512', $password));
 				}else{
 					return $this->hash($password, "sha1");
 				}
 			break;
 
 			case 'md5':
-				$hash = md5($password);
+				$hash = hex2bin(md5($password));
 			break;
 		}
 
 		if(empty($hash)){ return NULL; }
 
-		$hash = base64_encode(hex2bin($hash));
+		// No todos los hashes codifican en binario,
+		// asi que delegamos la funcion hex2bin a cada algoritmo.
+		$hash = base64_encode($hash);
 
 		return '{' .strtoupper($type) .'}' .$hash;
 	}
