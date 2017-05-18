@@ -61,6 +61,24 @@ class LdapUtils {
 		return $this;
     }
 
+	public function path($access, $addDomain = TRUE, $reverse = FALSE){
+		if(is_string($access)){ $access = explode(",", $access); }
+		$final = array();
+		if($reverse){ $access = array_reverse($access); }
+		foreach($access as $a){
+			if(empty($a)){ continue; }
+			$a = str_replace(",", "", $a);
+			$final[] = trim($a);
+		}
+		if($addDomain){
+			$access = explode(",", $this->domain(TRUE));
+			foreach($access as $a){
+				$final[] = $a;
+			}
+		}
+
+		return implode(",", $final);
+	}
 	public function hash($password, $type = "sha", $salt = NULL){
 		// Add option to function.
 		if(!empty($salt) && !empty($type) && strtolower($salt) == "ssha"){
