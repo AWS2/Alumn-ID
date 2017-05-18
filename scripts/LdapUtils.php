@@ -255,6 +255,33 @@ class LdapUtils {
 		return $this->generateLdif($rdn, $extra, ["groupOfNames", "top"]);
 	}
 
+	public function addMemberGroup($members, $path = NULL){
+		if(!is_array($members)){ $members = [$members]; }
+		return $this->__genericMemberToGroup($members, TRUE, $path);
+	}
+
+	public function deleteMemberGroup($members, $path){
+		if(!is_array($members)){ $members = [$members]; }
+		return $this->__genericMemberToGroup($members, FALSE, $path);
+	}
+
+	private function __genericMemberToGroup($members, $fieldAction, $path = NULL){
+		$data = array();
+		if(empty($path)){ $path = $this->pwd(); }
+
+		if($fieldAction === TRUE){ $fieldAction = "add"; }
+		elseif($fieldAction === FALSE){ $fieldAction = "delete"; }
+
+		foreach($members as $member){
+			$data["member"][] = $member;
+		}
+
+		$data["changeType"] = "modify";
+		$data[$fieldAction] = "member";
+
+		return $this->generateLdif($path, $data);
+	}
+
 	public function generateMultipath($content, $rdn = NULL, $path = NULL){
 		if(empty($path) or $path === TRUE){ $path = $this->pwd(); }
 		if(is_string($content)){ $content = [$content]; }
