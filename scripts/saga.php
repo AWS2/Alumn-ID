@@ -122,10 +122,10 @@ $pares_id = array_column($pares, "uidNumber");
 $pares_id = $ldap->generateMultipath($pares_id, "uidNumber", $ldap->path("cn=Pares,ou=Users", TRUE));
 
 $profes_id = array_column($profes, "uidNumber");
-$profes_id = $ldap->generateMultipath($profes_id, "uidNumber", $ldap->path("cn=Pares,ou=Users"), TRUE);
+$profes_id = $ldap->generateMultipath($profes_id, "uidNumber", $ldap->path("cn=Professors,ou=Users"), TRUE);
 
 echo $ldap->createGroupOfNames("Pares", $pares_id, ["description" => "Pares que poden accedir a la aplicacio de gestio."]);
-echo $ldap->createGroupOfNames("Profes", $profes_id, ["description" => "Profes que poden accedir a la aplicacio de gestio."]);
+echo $ldap->createGroupOfNames("Professors", $profes_id, ["description" => "Profes que poden accedir a la aplicacio de gestio."]);
 
 // ------------------------
 
