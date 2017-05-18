@@ -61,6 +61,25 @@ class LdapUtils {
 		return $this;
     }
 
+	public function path($access, $addDomain = TRUE, $reverse = FALSE){
+		if(is_string($access)){ $access = explode(",", $access); }
+		$final = array();
+		if($reverse){ $access = array_reverse($access); }
+		foreach($access as $a){
+			if(empty($a)){ continue; }
+			$a = str_replace(",", "", $a);
+			$final[] = trim($a);
+		}
+		if($addDomain){
+			$access = explode(",", $this->domain(TRUE));
+			foreach($access as $a){
+				$final[] = $a;
+			}
+		}
+
+		return implode(",", $final);
+	}
+
 	public function hash($password, $type = "sha", $salt = NULL){
 		// Add option to function.
 		if(!empty($salt) && !empty($type) && strtolower($salt) == "ssha"){
@@ -163,6 +182,33 @@ class LdapUtils {
 		}
 
 		return $this->generateLdif($rdn, $data, $classes);
+	}
+
+	public function addMemberGroup($members, $path = NULL){
+		if(!is_array($members)){ $members = [$members]; }
+		return $this->__genericMemberToGroup($members, TRUE, $path);
+	}
+
+	public function deleteMemberGroup($members, $path){
+		if(!is_array($members)){ $members = [$members]; }
+		return $this->__genericMemberToGroup($members, FALSE, $path);
+	}
+
+	private function __genericMemberToGroup($members, $fieldAction, $path = NULL){
+		$data = array();
+		if(empty($path)){ $path = $this->pwd(); }
+
+		if($fieldAction === TRUE){ $fieldAction = "add"; }
+		elseif($fieldAction === FALSE){ $fieldAction = "delete"; }
+
+		foreach($members as $member){
+			$data["member"][] = $member;
+		}
+
+		$data["changeType"] = "modify";
+		$data[$fieldAction] = "member";
+
+		return $this->generateLdif($path, $data);
 	}
 
 	public function createPosixGroup($cn, $gidNumber = NULL, $extra = NULL){
