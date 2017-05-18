@@ -184,7 +184,39 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
 // Identificar por el último dígito numérico del "codi".
 // No hay UFs, por lo tanto no conocemos contenido. Todos tendrán 10 temas.
 
-// PASO 2. Crear grupos y matricular alumnos y profes.
+// PASO 2. Matricular usuarios en DB.
+// La sincronización con LDAP se hace en el momento que intenta entrar un usuario.
+// Asi que vamos a registrar directamente a todos los usuarios "en blanco",
+// y pedir que el auth sea desde LDAP.
+// Así pues, la forma de generar el username tiene que ser IDENTICA, o dará problemas.
+
+// TODO WIP
+foreach($xml->alumnes->alumne as $alumne){
+    if(isset($alumne->contacte)){
+        foreach($alumne->contacte as $contacte){
+            $tipus = strtoupper(strval($contacte["tipus"]));
+            if($tipus == "EMAIL"){
+                $user["email"] = strval($contacte["contacte"]);
+                break;
+            }
+        }
+    }
+
+    $user = [
+        "auth" => "ldap",
+        "idnumber" => strval($alumne["id"]),
+        "lang" => "es", // MUST exist on server.
+        "country" => "ES",
+
+        "username" => "",
+        "password" => "not cached", // Tal cual.
+        "createpassword" => 0, // No crear ni enviar por correo.
+        "firstname" => strval($alumne["nom"]),
+        "lastname" => strval($alumne["cognom1"]),
+    ];
+}
+
+// PASO 3. Crear grupos y matricular alumnos y profes.
 foreach($xml->{'grups'}->{'grup'} as $grup){
     // Cargar los alumnos del grupo
     $alumnes = array();
