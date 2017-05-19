@@ -143,7 +143,7 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
         $courseid = $res[0]->id;
         echo "Curso $courseid creado: " .strval($course["nom"]) ."\n";
 
-        // TODO WIP - Not working.
+        // BUG MOODLE - Not working.
         // No se generan todos los topics, por lo tanto siempre aparece 1.
         // Sólo se generan cuando "un usuario mira el curso".
 
@@ -156,7 +156,7 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
         // Si se ha reconocido más de una UF
         if(count($ufs) >= 1){
             // Poner los nombres de las UFs en los section de cada curso.
-            // NOTE: Código no probado debido a bug de Moodle que no crea los sections.
+            // NOTE: Código no probado debido a BUG de Moodle que no crea los sections.
             // En principio debería funcionar.
             for($i = 0; $i < count($ufs); $i++){
                 if(!isset($topics[$i])){ continue; }
@@ -184,39 +184,7 @@ foreach($xml->{'plans-estudi'}->{'pla-estudis'} as $titulo){
 // Identificar por el último dígito numérico del "codi".
 // No hay UFs, por lo tanto no conocemos contenido. Todos tendrán 10 temas.
 
-// PASO 2. Matricular usuarios en DB.
-// La sincronización con LDAP se hace en el momento que intenta entrar un usuario.
-// Asi que vamos a registrar directamente a todos los usuarios "en blanco",
-// y pedir que el auth sea desde LDAP.
-// Así pues, la forma de generar el username tiene que ser IDENTICA, o dará problemas.
-
-// TODO WIP
-foreach($xml->alumnes->alumne as $alumne){
-    if(isset($alumne->contacte)){
-        foreach($alumne->contacte as $contacte){
-            $tipus = strtoupper(strval($contacte["tipus"]));
-            if($tipus == "EMAIL"){
-                $user["email"] = strval($contacte["contacte"]);
-                break;
-            }
-        }
-    }
-
-    $user = [
-        "auth" => "ldap",
-        "idnumber" => strval($alumne["id"]),
-        "lang" => "es", // MUST exist on server.
-        "country" => "ES",
-
-        "username" => "",
-        "password" => "not cached", // Tal cual.
-        "createpassword" => 0, // No crear ni enviar por correo.
-        "firstname" => strval($alumne["nom"]),
-        "lastname" => strval($alumne["cognom1"]),
-    ];
-}
-
-// PASO 3. Crear grupos y matricular alumnos y profes.
+// PASO 2. Crear grupos y matricular alumnos y profes.
 foreach($xml->{'grups'}->{'grup'} as $grup){
     // Cargar los alumnos del grupo
     $alumnes = array();
@@ -254,13 +222,13 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     // Grupos a los que se van a matricular los alumnos.
     $courses_unique = array_unique(array_values($courses));
 
-    echo "Matriculando " .count($alumnes) ." del grupo " .strval($grup["nom"]) ." en " .count($courses_unique) ." cursos.\n";
+    // Procesar sólo si hay cursos para matricular, o dará error.
     if(count($courses_unique) == 0){
-        echo "Ignorando. No hay cursos disponibles.\n";
+        echo "Ignorando el grupo " .strval($grup["nom"]) .". No hay cursos disponibles.\n";
         continue;
     }
 
-    // Procesar sólo si hay cursos para matricular, o dará error.
+    echo "Matriculando " .count($alumnes) ." del grupo " .strval($grup["nom"]) ." en " .count($courses_unique) ." cursos.\n";
 
     // Crear lista de Profe -> cursos
     $profe_enrol = array();
@@ -275,9 +243,7 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
         }
     }
 
-    // TODO Asociar via LDAP con el ID respectivo del alumno para poder matricularlo.
-
-    // Crear cursos en cada grupo.
+    // Crear grupos en cada curso.
     $groups = array();
     foreach($courses_unique as $course){
         $groups["groups"][] = [
@@ -293,6 +259,21 @@ foreach($xml->{'grups'}->{'grup'} as $grup){
     $i = 1;
     foreach($alumnes as $alumne){
         echo str_pad($i, 4, " ", STR_PAD_LEFT) ." ";
+
+        // Get info alumno en base al field idnumber, no el ID de Moodle.
+        $data = ["field" => "idnumber", "values" => [$alumne]];
+        $res = $moodle->query("core_user_get_users_by_field", $data, "id");
+
+        // Si no se encuentra el alumno con ese idnumber, saltamos.
+        if(empty($res)){
+            echo "X\n";
+            $i++;
+            continue;
+        }
+
+        // Cambiar IDNumber por ID de usuario Moodle.
+        $alumne = $res[0];
+
         foreach($courses_unique as $course){
             // Matricular al usuario en el curso.
             $enrol = [
