@@ -55,6 +55,12 @@ foreach($groups as $grup){
     }
 
     $info = ldap_get_entries($ldap, $res);
+    if($info["count"] == 0){
+        echo "X\n";
+        $g++;
+        continue;
+    }
+
     for($i = 0; $i < $info[0]["member"]["count"]; $i++){
         $users[] = $info[0]["member"][$i];
     }
