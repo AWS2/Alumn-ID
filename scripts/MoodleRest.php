@@ -89,7 +89,7 @@ class MoodleRest {
                 if(isset($v->{$column_key})){
                     $ret[$v->{$column_key}] = $v->{$column};
                 }
-            }else{
+            }elseif(isset($v->{$column})){
                 $ret[] = $v->{$column};
             }
         }
