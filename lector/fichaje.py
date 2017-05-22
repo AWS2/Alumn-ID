@@ -2,6 +2,7 @@ import nfc
 import time
 import binascii
 import hashlib
+import urllib, json
 from pprint import pprint
 
 clf = nfc.ContactlessFrontend('usb')
@@ -16,9 +17,13 @@ def on_release(tag):
     return True
 
 def check_user(hash):
-    hashes = ['7a2bd8f101191837e98f6e24ba89b23385411972']
-    return hash in hashes
-    # return True
+    url = "http://example.com/login.php?id=" + hash
+    response = urllib.urlopen(url)
+    data = json.loads(response.read())
+    if not data or data.status == "error":
+        return False
+    # TODO
+    return True
 
 while True:
     tag = clf.connect(rdwr={
