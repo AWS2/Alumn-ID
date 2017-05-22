@@ -15,6 +15,13 @@ return [
         'password' => '',
         'domain' => 'example.com',
     ],
+
+    'mysql' => [
+        'host' => 'localhost',
+        'username' => 'root',
+        'passwd' => '',
+        'dbname' => 'django',
+    ],
 ];
 
 ?>

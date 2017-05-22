@@ -51,11 +51,29 @@ if($info["count"] != 1){
 }
 
 $name = $info[0]["cn"][0];
+$idal = $info[0]["uidNumber"][0];
 
-// INSERT en DB.
+$data = [
+    'id_ldap' => $idal,
+    'origenlector' => $_SERVER['REMOTE_ADDR'],
+    'dia_hora' => date("Y-m-d H:i:s"),
+    'id_tarjeta' => $id
+];
+
+$sql = "INSERT INTO admincenter_files_fitxatge (" .implode(",", array_keys($data)) .") "
+        ."VALUES ('" .implode("', '", array_values($data)) ."');";
+
+$mysql = new mysqli($config["mysql"]["host"], $config["mysql"]["username"], $config["mysql"]["passwd"], $config["mysql"]["dbname"]);
+
+if($mysql->connect_error){
+    http_response_code(500);
+    echo json_encode(array("status" => "error", "data" => "db_error"));
+    die();
+}
+
+$mysql->query($sql);
 
 $time = (microtime() - $mt) * 1000;
-
 http_response_code(200);
 echo json_encode(array("status" => "ok", "time" => $time, "name" => $name));
 die();
