@@ -50,7 +50,7 @@ if($info["count"] != 1){
     die();
 }
 
-$name = $info[0]["cn"];
+$name = $info[0]["cn"][0];
 
 // INSERT en DB.
 
