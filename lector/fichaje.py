@@ -44,7 +44,9 @@ while True:
         print("Tarjeta encontrada de tipo " + tag.type)
 
     id = ''.join(x.encode('hex') for x in tag.identifier)
-    print("ID: " + id)
+
+    if debug:
+        print("ID: " + id)
 
     error = False
 
@@ -145,7 +147,7 @@ while True:
                     sound = bytearray.fromhex("FF0040740401010101")
                 else:
                     sound = bytearray.fromhex("FF0040F30402010201")
-                    print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta no registrada.")
+                    print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta no registrada: " + id)
 
                 clf.device.chipset.ccid_xfr_block(sound, 2)
                 while tag.is_present:
@@ -157,7 +159,7 @@ while True:
 
     if error:
         sound = "FF00405D0401010301" # 01
-        print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta desconocida.")
+        print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta desconocida: " + id)
     else:
                     #28
         sound = "FF0040740401010101" # 01
