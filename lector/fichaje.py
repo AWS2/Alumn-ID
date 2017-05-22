@@ -3,6 +3,7 @@ import time
 import binascii
 import hashlib
 import urllib, json
+from random import random
 from datetime import datetime
 from pprint import pprint
 
@@ -18,7 +19,8 @@ def on_release(tag):
     return True
 
 def check_user(hash):
-    url = "http://example.com/login.php?id=" + hash
+    rn = str(random() * 1000)
+    url = "http://example.com/login.php?rand=" + rn + "&id=" + hash
     response = urllib.urlopen(url)
     data = json.loads(response.read())
     if not data or data["status"] == "error":
