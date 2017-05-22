@@ -127,7 +127,7 @@ while True:
                 fid = trid[0:4] + trid[12:16]
                 print("TR: " + fid)
                 print("Sale: '" + id + fid + "'")
-                chash = hashlib.sha1(id + fid).hexdigest()
+                chash = hashlib.sha1("T:" + id + fid).hexdigest()
                 print("Hash: " + chash)
 
                 if check_user(chash):
