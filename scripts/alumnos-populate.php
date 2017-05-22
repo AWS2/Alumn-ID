@@ -134,13 +134,13 @@ foreach($users as $user){
     }
 
     // Generar nombre de usuario.
-    $username = $info["uid"];
+    $username = $info["uid"][0];
 
     // Si existe en Moodle, probar +1, +2, +3...
     if(user_exists($username)){
     	$j = 1;
     	do{
-    		$username = $info["uid"] .$j;
+    		$username = $info["uid"][0] .$j;
     		$j++;
     	}while(user_exists($username));
 
