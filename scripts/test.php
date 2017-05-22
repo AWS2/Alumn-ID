@@ -34,11 +34,11 @@ $required = [
 ];
 
 $funcs = array();
-foreach($res->functions as $f){ $funcs[] = $r->name; }
+foreach($res->functions as $f){ $funcs[] = $f->name; }
 
 foreach($required as $r){
-	$str = "- $r :";
-	echo str_pad($str, 40, " ", STR_PAD_RIGHT);
+	$str = "- $r";
+	echo str_pad($str, 40, " ", STR_PAD_RIGHT) .":";
 	echo (in_array($r, $funcs) ? "OK" : "NO");
 	echo "\n";
 }

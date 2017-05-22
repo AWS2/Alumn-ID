@@ -43,13 +43,16 @@ class MoodleRest {
         return $this;
     }
 
-    public function query($type, $data, $column = NULL, $column_key = NULL){
+    public function query($type, $data = NULL, $column = NULL, $column_key = NULL){
         $url = $this->url . "/webservice/" .$this->type ."/server.php?"
         ."wstoken=" .$this->token ."&"
         ."wsfunction=" .$type ."&"
         ."moodlewsrestformat=json";
 
-        $post = http_build_query($data);
+		$post = NULL;
+		if(!empty($data)){
+			$post = http_build_query($data);
+		}
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
