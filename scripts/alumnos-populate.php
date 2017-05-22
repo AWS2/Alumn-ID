@@ -76,9 +76,26 @@ sort($users);
 
 echo "Buscando y matriculando " .count($users) ." usuarios...\n";
 
+$moodle = new MoodleRest($config["url"], $config["token"]);
+$moodle->type("rest");
+
+function user_exists($user, $field = "username"){
+	global $moodle;
+
+	$search = [
+    	"field" => $field,
+    	"values" => [$user]
+    ];
+
+    $res = $moodle->query("core_user_get_users_by_field", $search);
+    return (count($res) > 0);
+}
+
 $u = 1;
 foreach($users as $user){
     echo str_pad($u, 4, " ", STR_PAD_LEFT) ." ";
+
+    $u++;
 
     // Obtener datos de LDAP
     $rdn = explode(",", $user);
@@ -86,24 +103,68 @@ foreach($users as $user){
     $path = implode(",", $rdn);
 
     $res = ldap_search($ldap, $path, "($field)");
-    if(!$res){
-        echo "X\n";
-        $u++;
+
+    // Si no existe, skip.
+    if(!$res or $res["count"] == 0){
+        echo "-\n";
+        // $u++;
         continue;
     }
 
     $info = ldap_get_entries($ldap, $res);
     $info = $info[0];
 
-    echo $info["cn"] ."\n";
-    $u++;
-
-    // Si no existe, skip.
+    echo $info["cn"];
 
     // Buscar Usuario con idnumber o correo, si existe skip.
-    // Generar nombre de usuario. Si existe en Moodle, probar +1, +2, +3...
+    if(user_exists($info["uidNumber"], "idnumber")){
+    	echo "R\n";
+    	continue;
+    }
+
+    if(isset($info["email"]) and user_exists($info["email"], "email")){
+    	echo "E\n";
+    	continue;
+    }
+
+    // Generar nombre de usuario. 
+    $username = $info["uid"];
+
+    // Si existe en Moodle, probar +1, +2, +3...
+    if(user_exists($username)){
+    	$j = 1;
+    	do{
+    		$username = $info["uid"] .$j;
+    		$j++;
+    	}while(user_exists($username));
+
+    	echo " - cambio usuario a $username.";
+    	// TODO UPDATE LDAP
+    }
 
     // Registrar usuario en Moodle.
+    $cols = [
+    	// "username" => "uid",
+    	"firstname" => "givenName",
+    	"lastname" => "sn",
+    	"email" => "email",
+    	"idnumber" => "uidNumber",
+    ];
+
+    $data = array();
+    foreach($cols as $m => $l){
+    	if(!isset($info[$l])){ continue; }
+    	$data[$m] = $info[$l];
+    }
+
+    $data["username"] = $username;
+    $data["password"] = "not cached";
+    $data["auth"] = "ldap";
+    $data["createpassword"] = (int) FALSE;
+    $data["lang"] = "es";
+
+    $data = ["users" => [$data]];
+    $res = $moodle->query("core_user_create_users", $data);
 }
 
 ldap_close($ldap);
