@@ -44,18 +44,20 @@ if(!$res){
 }
 
 $info = ldap_get_entries($ldap, $res);
-if($info["count"] == 0){
+if($info["count"] != 1){
     http_response_code(404);
     echo json_encode(array("status" => "error", "data" => "not_found"));
     die();
 }
+
+$name = $info[0]["cn"];
 
 // INSERT en DB.
 
 $time = (microtime() - $mt) * 1000;
 
 http_response_code(200);
-echo json_encode(array("status" => "ok", "time" => $time));
+echo json_encode(array("status" => "ok", "time" => $time, "name" => $name));
 die();
 
 

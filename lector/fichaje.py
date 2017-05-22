@@ -3,6 +3,7 @@ import time
 import binascii
 import hashlib
 import urllib, json
+from datetime import datetime
 from pprint import pprint
 
 clf = nfc.ContactlessFrontend('usb')
@@ -20,9 +21,10 @@ def check_user(hash):
     url = "http://example.com/login.php?id=" + hash
     response = urllib.urlopen(url)
     data = json.loads(response.read())
-    if not data or data.status == "error":
+    if not data or data["status"] == "error":
         return False
     # TODO
+    print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Validado: " + data["name"])
     return True
 
 while True:
