@@ -24,7 +24,7 @@ def check_user(hash):
     if not data or data["status"] == "error":
         return False
     # TODO
-    print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Validado: " + data["name"])
+    print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Validado: " + str(data["name"]))
     return True
 
 while True:
