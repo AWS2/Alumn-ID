@@ -23,7 +23,6 @@ if(isset($res->exception) and $res->exception == "webservice_access_exception"){
 $required = [
 	"core_user_get_users_by_field",
 	"core_user_create_users",
-	"core_user_get_users_by_field",
 	"enrol_manual_enrol_users",
 	"core_course_create_categories",
 	"core_course_create_courses",
@@ -38,7 +37,7 @@ foreach($res->functions as $f){ $funcs[] = $f->name; }
 
 foreach($required as $r){
 	$str = "- $r";
-	echo str_pad($str, 40, " ", STR_PAD_RIGHT) .":";
+	echo str_pad($str, 40, " ", STR_PAD_RIGHT) .": ";
 	echo (in_array($r, $funcs) ? "OK" : "NO");
 	echo "\n";
 }
