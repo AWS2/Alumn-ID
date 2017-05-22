@@ -105,13 +105,19 @@ foreach($users as $user){
     $res = ldap_search($ldap, $path, "($field)");
 
     // Si no existe, skip.
-    if(!$res or $res["count"] == 0){
+    if(!$res){
         echo "-\n";
         // $u++;
         continue;
     }
 
     $info = ldap_get_entries($ldap, $res);
+
+    if($info["count"] == 0){
+        echo "-\n";
+        continue;
+    }
+
     $info = $info[0];
 
     echo $info["cn"];
@@ -127,7 +133,7 @@ foreach($users as $user){
     	continue;
     }
 
-    // Generar nombre de usuario. 
+    // Generar nombre de usuario.
     $username = $info["uid"];
 
     // Si existe en Moodle, probar +1, +2, +3...
