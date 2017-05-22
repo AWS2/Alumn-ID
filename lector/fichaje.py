@@ -12,6 +12,8 @@ clf = nfc.ContactlessFrontend('usb')
 #sound = bytearray.fromhex("FF0040FC0401010402")
 #clf.device.chipset.ccid_xfr_block(sound, 4)
 
+debug = False
+
 print("Cargado!")
 
 def on_release(tag):
@@ -38,7 +40,8 @@ while True:
         'iterations': 1
     })
 
-    print("Tarjeta encontrada de tipo " + tag.type)
+    if debug:
+        print("Tarjeta encontrada de tipo " + tag.type)
 
     id = ''.join(x.encode('hex') for x in tag.identifier)
     print("ID: " + id)
@@ -54,7 +57,8 @@ while True:
         r = tag.transceive(bytearray.fromhex("00A40000 02 2F01"), 2)
         if r[-2:] == '\x90\x00': # Si es DNI
             error = True
-            print("DNIe encontrado")
+            if debug:
+                print("DNIe encontrado")
 
         # Buscar PPSE
         sel = bytearray("2PAY.SYS.DDF01")
@@ -93,7 +97,8 @@ while True:
             r = tag.transceive(bytearray.fromhex("00A404000E") + sel, 2)
             if r[-2:] != '\x90\x00': # Si es Tarjeta PSE
                 error = True
-                print("Tarjeta desconocida")
+                if debug:
+                    print("Tarjeta desconocida")
 
         if not error:
             error = True # Hay que encontrar el ID
@@ -129,15 +134,18 @@ while True:
             if trid is not None:
                 error = False
                 fid = trid[0:4] + trid[12:16]
-                print("TR: " + fid)
-                print("Sale: '" + id + fid + "'")
                 chash = hashlib.sha1("T:" + id + fid).hexdigest()
-                print("Hash: " + chash)
+
+                if debug:
+                    print("TR: " + fid)
+                    print("Sale: '" + id + fid + "'")
+                    print("Hash: " + chash)
 
                 if check_user(chash):
                     sound = bytearray.fromhex("FF0040740401010101")
                 else:
                     sound = bytearray.fromhex("FF0040F30402010201")
+                    print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta no registrada.")
 
                 clf.device.chipset.ccid_xfr_block(sound, 2)
                 while tag.is_present:
@@ -149,6 +157,7 @@ while True:
 
     if error:
         sound = "FF00405D0401010301" # 01
+        print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta desconocida.")
     else:
                     #28
         sound = "FF0040740401010101" # 01
