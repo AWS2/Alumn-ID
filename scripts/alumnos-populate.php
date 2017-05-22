@@ -160,7 +160,7 @@ foreach($users as $user){
     $data = array();
     foreach($cols as $m => $l){
     	if(!isset($info[$l])){ continue; }
-    	$data[$m] = $info[$l];
+    	$data[$m] = $info[$l][0];
     }
 
     $data["username"] = $username;
@@ -171,6 +171,8 @@ foreach($users as $user){
 
     $data = ["users" => [$data]];
     $res = $moodle->query("core_user_create_users", $data);
+
+    echo "\n";
 }
 
 ldap_close($ldap);
