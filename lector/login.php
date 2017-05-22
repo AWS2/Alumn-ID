@@ -51,7 +51,7 @@ if($info["count"] != 1){
 }
 
 $name = $info[0]["cn"][0];
-$idal = $info[0]["uidNumber"][0];
+$idal = $info[0]["uidnumber"][0];
 
 $data = [
     'id_ldap' => $idal,
