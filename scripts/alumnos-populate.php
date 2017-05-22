@@ -120,10 +120,10 @@ foreach($users as $user){
 
     $info = $info[0];
 
-    echo $info["cn"];
+    echo $info["cn"][0];
 
     // Buscar Usuario con idnumber o correo, si existe skip.
-    if(user_exists($info["uidNumber"], "idnumber")){
+    if(user_exists($info["uidnumber"][0], "idnumber")){
     	echo "R\n";
     	continue;
     }
@@ -151,10 +151,10 @@ foreach($users as $user){
     // Registrar usuario en Moodle.
     $cols = [
     	// "username" => "uid",
-    	"firstname" => "givenName",
+    	"firstname" => "givenname",
     	"lastname" => "sn",
     	"email" => "email",
-    	"idnumber" => "uidNumber",
+    	"idnumber" => "uidnumber",
     ];
 
     $data = array();
