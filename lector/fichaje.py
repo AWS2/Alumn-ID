@@ -56,7 +56,12 @@ while True:
     elif tag.type == 'Type4Tag':
         # print(tag.dump())
         # Buscar DNI
-        r = tag.transceive(bytearray.fromhex("00A40000 02 2F01"), 2)
+        try:
+            r = tag.transceive(bytearray.fromhex("00A40000 02 2F01"), 1.0)
+        except:
+            print ("Timeout error.")
+            error = True
+            break
         if r[-2:] == '\x90\x00': # Si es DNI
             error = True
             if debug:
@@ -64,7 +69,14 @@ while True:
 
         # Buscar PPSE
         sel = bytearray("2PAY.SYS.DDF01")
-        r = tag.transceive(bytearray.fromhex("00A404000E") + sel, 2)
+
+        try:
+            r = tag.transceive(bytearray.fromhex("00A404000E") + sel, 1.0)
+        except:
+            print ("Timeout error.")
+            error = True
+            break
+
         if r[-2:] == '\x90\x00': # Si es Tarjeta PPSE
             # pprint(r)
             # print("---------")
@@ -86,7 +98,12 @@ while True:
                 r = bytearray.fromhex("00A40400")
                 r += bytes(chr(appln))
                 r += app
-                r = tag.transceive(r, 2)
+                try:
+                    r = tag.transceive(r, 1.0)
+                except:
+                    print ("Timeout error.")
+                    error = True
+                    break
                 # pprint(r)
 
                     # print("Encontrado")
@@ -96,7 +113,14 @@ while True:
         # Buscar PSE
         else:
             sel = bytearray("1PAY.SYS.DDF01")
-            r = tag.transceive(bytearray.fromhex("00A404000E") + sel, 2)
+
+            try:
+                r = tag.transceive(bytearray.fromhex("00A404000E") + sel, 1.0)
+            except:
+                print ("Timeout error.")
+                error = True
+                break
+
             if r[-2:] != '\x90\x00': # Si es Tarjeta PSE
                 error = True
                 if debug:
@@ -114,7 +138,14 @@ while True:
             for x in sels:
                 x = bytearray.fromhex(x)
                 # pprint(x)
-                r = tag.transceive(x, 2)
+
+                try:
+                    r = tag.transceive(x, 1.0)
+                except:
+                    print ("Timeout error.")
+                    error = True
+                    break
+
                 # print(''.join('{:02x}'.format(x) for x in r))
                 # pprint(r)
                 for i in range(len(r)):
