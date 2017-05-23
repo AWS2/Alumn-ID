@@ -61,7 +61,8 @@ while True:
         except:
             print ("Timeout error.")
             error = True
-            break
+            r = '\x00\x90\x00'
+
         if r[-2:] == '\x90\x00': # Si es DNI
             error = True
             if debug:
