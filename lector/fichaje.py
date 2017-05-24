@@ -199,12 +199,14 @@ while True:
                 clf.device.chipset.ccid_xfr_block(sound, 2)
 
                 if result is True:
-                    for data in pending:
+                    for key in pending:
+                        data = pending[key]
                         result = check_user(data["hash"])
                         if result is True:
                             print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta previa procesada OK: " + data["id"])
                         else:
                             print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta previa procesada KO: " + data["id"])
+                        pending.pop(key, None)
 
                 while tag.is_present:
                     time.sleep(0.1)
