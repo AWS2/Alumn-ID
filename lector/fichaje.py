@@ -13,6 +13,7 @@ clf = nfc.ContactlessFrontend('usb')
 #clf.device.chipset.ccid_xfr_block(sound, 4)
 
 debug = False
+pending = {}
 
 print("Cargado!")
 
@@ -182,14 +183,29 @@ while True:
                 result = check_user(chash)
                 if result is True:
                     sound = bytearray.fromhex("FF0040740401010101")
+
+                    if chash in pending.keys():
+                        pending.pop(chash, None)
                 elif result is -2:
                     sound = bytearray.fromhex("FF0040F30402010401")
                     print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " No se ha podido conectar con el servidor. Hash: " + chash)
+
+                    later = {chash: {'id' : id, 'hash': chash, 'time': str(int(time.time()))}}
+                    pending.update(later)
                 else:
                     sound = bytearray.fromhex("FF0040F30402010201")
                     print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta no registrada: " + id)
 
                 clf.device.chipset.ccid_xfr_block(sound, 2)
+
+                if result is True:
+                    for data in pending:
+                        result = check_user(data["hash"])
+                        if result is True:
+                            print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta previa procesada OK: " + data["id"])
+                        else:
+                            print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta previa procesada KO: " + data["id"])
+
                 while tag.is_present:
                     time.sleep(0.1)
 
