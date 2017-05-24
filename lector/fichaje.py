@@ -27,7 +27,7 @@ def check_user(hash):
         response = urllib.urlopen(url)
         data = json.loads(response.read())
     except Exception as e:
-        print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Error al cargar URL o parsear datos.)
+        print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Error al cargar URL o parsear datos.")
         return False
 
     if not data or data["status"] == "error":
