@@ -27,12 +27,11 @@ def check_user(hash):
         response = urllib.urlopen(url)
         data = json.loads(response.read())
     except Exception as e:
-        print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Error al cargar URL o parsear datos.")
-        return False
+        return -2
 
     if not data or data["status"] == "error":
         return False
-    # TODO
+
     print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Validado: " + str(data["name"]))
     return True
 
@@ -180,8 +179,12 @@ while True:
                     print("Sale: '" + id + fid + "'")
                     print("Hash: " + chash)
 
-                if check_user(chash):
+                result = check_user(chash)
+                if result is True:
                     sound = bytearray.fromhex("FF0040740401010101")
+                elif result is -2:
+                    sound = bytearray.fromhex("FF0040F30402010401")
+                    print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " No se ha podido conectar con el servidor. Hash: " + chash)
                 else:
                     sound = bytearray.fromhex("FF0040F30402010201")
                     print(datetime.now().strftime('%d-%m-%Y %H:%M:%S') + " Tarjeta no registrada: " + id)
