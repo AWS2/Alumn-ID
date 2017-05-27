@@ -2,6 +2,8 @@
 
 require_once 'LdapUtils.php';
 
+$config = require 'config.php';
+
 $xml = simplexml_load_file("dades-saga.xml");
 
 $assocs = [
@@ -21,7 +23,7 @@ $assocs = [
 	// userClass = student, parent,
 ];
 
-$ldap = new LdapUtils("ester.cat");
+$ldap = new LdapUtils($config['ldap']['domain']);
 
 $GID_Users = 500;
 $GID_Person = 501;
