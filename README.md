@@ -10,7 +10,7 @@ El proyecto utiliza componentes de software libre, entre ellos:
 - [nfcpy](https://github.com/nfcpy/nfcpy) y [libnfc](https://github.com/nfc-tools/libnfc), para proveer las funciones de lectura de tarjetas NFC.
 
 ## Historia
-El proyecto nace de @duhow y @amadoarnau, cada uno ha tenido ideas separadas pero relacionadas, que al final se han unido y se desarrollarán en conjunto.
+El proyecto nace de [**@duhow**](https://github.com/duhow) y [**@amadoarnau**](https://github.com/amadoarnau), cada uno ha tenido ideas separadas pero relacionadas, que al final se han unido y se desarrollarán en conjunto.
 
 ## Objetivos
 Los objetivos principales son los siguientes:
