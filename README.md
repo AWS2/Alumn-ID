@@ -13,9 +13,9 @@ El proyecto nace de @duhow y @amadoarnau, cada uno ha tenido ideas separadas per
 
 ## Objetivos
 Los objetivos principales son los siguientes:
-- [ ] Fichaje de alumnos y profesores al entrar al centro, a través de un lector NFC.
+- [x] Fichaje de alumnos y profesores al entrar al centro, a través de un lector NFC.
 - [ ] El alumno y sus tutores legales / padres, podrán ver las notas del alumno a través de la plataforma - desarrollada en Django.
-- [ ] Creación automática de los servidores de datos y cursos de Moodle a través de scripts / parsers / Moodle API, con origen de datos XML [SAGA](http://educacio.gencat.cat/portal/page/portal/Educacio/PCentrePrivat/PCPInici/PCPGestioAdministrativa/PCPAccesSAGA).
+- [x] Creación automática de los servidores de datos y cursos de Moodle a través de scripts / parsers / Moodle API, con origen de datos XML [SAGA](http://educacio.gencat.cat/portal/page/portal/Educacio/PCentrePrivat/PCPInici/PCPGestioAdministrativa/PCPAccesSAGA).
 
 ## Extras
 Otras ideas planteadas son:
