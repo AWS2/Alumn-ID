@@ -89,7 +89,7 @@ services:
             - "/data/moodledata:/var/moodledata"
 
     mail:
-        image: tvial/docker-mailserver:2.2
+        image: tvial/docker-mailserver:2.3
         hostname: mail
         domainname: example.com
         container_name: mail
@@ -118,6 +118,7 @@ services:
         - LDAP_BIND_DN=cn=admin,dc=example,dc=com
         - LDAP_BIND_PW=Passw0rd.
         - LDAP_SEARCH_BASE=dc=example,dc=com
+        - LDAP_QUERY_FILTER=(&(uid=%U)(objectClass=person))
         - ENABLE_SASLAUTHD=1
         - SASLAUTHD_LDAP_SERVER=ldap
         - SASLAUTHD_LDAP_PROTO=
