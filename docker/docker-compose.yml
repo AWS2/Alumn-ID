@@ -1,4 +1,12 @@
 version: "3.2"
+
+# global ports:
+# - 80 : http moodle
+# - 443 : https moodle
+# - 1443 : https ldapmin
+# - 25, 143, 587, 993 : mail
+# - 8080 : http webmail
+
 services:
     ldap:
         image: osixia/openldap:1.1.8
@@ -6,12 +14,13 @@ services:
             - "LDAP_ORGANISATION=Ejemplo"
             - "LDAP_DOMAIN=example.com"
             - "LDAP_ADMIN_PASSWORD=Passw0rd."
-        ports:
-            - "389:389"
-            - "636:636"
+        expose:
+            - "389"
+            - "636"
+        restart: always
         deploy:
             restart_policy:
-                condition: on-failure
+                condition: any
         volumes:
             - "/data/slapd/database:/var/lib/ldap"
             - "/data/slapd/config:/etc/ldap/slapd.d"
@@ -23,7 +32,9 @@ services:
         expose:
             - "443"
         ports:
-            - "443:443"
+            - "1443:443"
+        links:
+            - ldap
         depends_on:
             - ldap
 
@@ -36,13 +47,13 @@ services:
             - "MYSQL_USER=moodle"
             - "MYSQL_PASSWORD=moodle"
             - "MYSQL_DATABASE=moodle"
-
 # Do not expose ports to outside unless required.
 #        ports:
 #            - "3306:3306"
+        restart: always
         deploy:
             restart_policy:
-                condition: on-failure
+                condition: any
         volumes:
             - '/data/mariadb:/var/lib/mysql'
 
@@ -61,11 +72,81 @@ services:
             - "DB_ENV_MYSQL_PASSWORD=moodle"
             - "DB_PORT_3306_TCP_PORT=3306"
             - "DB_PORT_3306_TCP_ADDR=mariadb"
+        restart: always
+        deploy:
+            restart_policy:
+                condition: any
         ports:
             - "80:80"
+            - "443:443"
         links:
             - mariadb
+            - ldap
         depends_on:
             - mariadb
+            - ldap
         volumes:
             - "/data/moodledata:/var/moodledata"
+
+    mail:
+        image: tvial/docker-mailserver:2.2
+        hostname: mail
+        domainname: example.com
+        container_name: mail
+        # only needed for fail2ban
+        cap_add:
+        - NET_ADMIN
+        ports:
+        - "25:25"
+        - "143:143"
+        - "587:587"
+        - "993:993"
+        volumes:
+        - "/data/maildata:/var/mail"
+        - "/data/mailstate:/var/mail-state"
+        - "./config/:/tmp/docker-mailserver/"
+        environment:
+        - ENABLE_SPAMASSASSIN=1
+        - ENABLE_CLAMAV=1
+        # - ENABLE_FAIL2BAN=1
+        - ENABLE_POSTGREY=1
+        - ONE_DIR=1
+        - DMS_DEBUG=1
+        # ldap integration
+        - ENABLE_LDAP=1
+        - LDAP_SERVER_HOST=ldap
+        - LDAP_BIND_DN=cn=admin,dc=example,dc=com
+        - LDAP_BIND_PW=Passw0rd.
+        - LDAP_SEARCH_BASE=dc=example,dc=com
+        - ENABLE_SASLAUTHD=1
+        - SASLAUTHD_LDAP_SERVER=ldap
+        - SASLAUTHD_LDAP_PROTO=
+        - SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=example,dc=com
+        - SASLAUTHD_LDAP_PASSWORD=Passw0rd.
+        - SASLAUTHD_LDAP_SEARCH_BASE=dc=example,dc=com
+        - SASLAUTHD_LDAP_FILTER=(&(cn=%U)(objectClass=person))
+        - SASLAUTHD_MECHANISMS=ldap
+        links:
+        - ldap
+        depends_on:
+        - ldap
+
+    roundcube:
+        image: robbertkl/roundcube:latest
+        hostname: webmail
+        domainname: webmail.example.com
+        container_name: roundcube
+        restart: always
+        ports:
+        - "8080:80"
+        links:
+        - mail
+        depends_on:
+        - mail
+        environment:
+        - ROUNDCUBE_DEFAULT_HOST=ssl://mail
+        - ROUNDCUBE_DEFAULT_PORT=993
+        - ROUNDCUBE_SMTP_SERVER=tls://mail
+        - ROUNDCUBE_SMTP_PORT=587
+        - ROUNDCUBE_MANAGESIEVE_HOST=mail
+        - ROUNDCUBE_MANAGESIEVE_USETLS=true
