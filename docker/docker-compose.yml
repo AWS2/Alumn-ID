@@ -5,11 +5,17 @@ version: "3.2"
 # - 443 : https moodle
 # - 1443 : https ldapmin
 # - 25, 143, 587, 993 : mail
-# - 8080 : http webmail
+# - 8080 : http webmailcd t
 
 services:
     ldap:
-        image: osixia/openldap:1.1.8
+        #image: osixia/openldap:1.1.8
+        build:
+            context: ./docker-openldap
+            dockerfile: Dockerfile
+#            cache_from:
+#                - ubuntu:16.04
+        container_name: ldap
         environment:
             - "LDAP_ORGANISATION=Ejemplo"
             - "LDAP_DOMAIN=example.com"
@@ -118,14 +124,14 @@ services:
         - LDAP_BIND_DN=cn=admin,dc=example,dc=com
         - LDAP_BIND_PW=Passw0rd.
         - LDAP_SEARCH_BASE=dc=example,dc=com
-        - LDAP_QUERY_FILTER=(&(uid=%U)(objectClass=person))
+#        - LDAP_QUERY_FILTER=(&(uid=%U)(objectClass=person))
         - ENABLE_SASLAUTHD=1
         - SASLAUTHD_LDAP_SERVER=ldap
         - SASLAUTHD_LDAP_PROTO=
         - SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=example,dc=com
         - SASLAUTHD_LDAP_PASSWORD=Passw0rd.
         - SASLAUTHD_LDAP_SEARCH_BASE=dc=example,dc=com
-        - SASLAUTHD_LDAP_FILTER=(&(cn=%U)(objectClass=person))
+        - SASLAUTHD_LDAP_FILTER=(&(uid=%U)(objectClass=PostfixBookMailAccount))
         - SASLAUTHD_MECHANISMS=ldap
         links:
         - ldap
